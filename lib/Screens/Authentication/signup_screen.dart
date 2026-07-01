@@ -110,14 +110,24 @@ final AuthController authController = AuthController();
               foregroundColor: Colors.white,
             ),
             onPressed: () async {
-              String result = await authController.signupUser(
-                usernameController.text.trim(),
-                emailController.text.trim(),
-                passwordController.text.trim(),
+              final authController = context.read<AuthController>();
+              bool success = await authController.register(
+                usernameController.text,
+                emailController.text,
+                passwordController.text
+              );
+
+              if (success) {
+                Navigator.pushReplacementNamed(context, '/user-home');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(authController.error ?? 'Registration failed')),
+                );
+              }
               );
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(result)),
+                SnackBar(content: Text(result as String)),
               );
             }, child: const Text("Sign Up"),
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Controllers/admin_controller.dart';
-import '../Models/admin_order_model.dart';
+import '../../Controllers/admin_controller.dart';
+import '../../Models/admin_order_model.dart';
 
 class AdminOrdersScreen extends StatefulWidget {
   const AdminOrdersScreen({Key? key}) : super(key: key);

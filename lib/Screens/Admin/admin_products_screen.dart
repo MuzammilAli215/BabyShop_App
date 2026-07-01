@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Controllers/admin_controller.dart';
-import '../Models/admin_product_model.dart';
+
+import '../../Controllers/admin_controller.dart';
+import '../../Models/admin_product_model.dart';
 
 class AdminProductsScreen extends StatefulWidget {
-  const AdminProductsScreen({Key? key}) : super(key: key);
+  const AdminProductsScreen({super.key});
 
   @override
   State<AdminProductsScreen> createState() => _AdminProductsScreenState();

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Controllers/admin_controller.dart';
-import '../Models/admin_user_model.dart';
+
+import '../../Controllers/admin_controller.dart';
+import '../../Models/admin_user_model.dart';
+
 
 class AdminUsersScreen extends StatefulWidget {
-  const AdminUsersScreen({Key? key}) : super(key: key);
+  const AdminUsersScreen({super.key});
 
   @override
   State<AdminUsersScreen> createState() => _AdminUsersScreenState();

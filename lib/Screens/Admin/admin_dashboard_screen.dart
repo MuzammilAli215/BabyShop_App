@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Controllers/admin_controller.dart';
+import '../../Controllers/admin_controller.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({Key? key}) : super(key: key);
+  const AdminDashboardScreen({super.key});
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -206,11 +206,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.grey.shade100,
-        border: Border.left(
-          color: color,
-          width: 4,
+        // border: Border.left(
+        //   color: color,
+        //   width: 4,
         ),
-      ),
+      );
       child: Row(
         children: [
           Container(
@@ -245,8 +245,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildManagementButton(

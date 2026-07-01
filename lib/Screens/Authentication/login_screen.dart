@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_eproject/Controllers/auth_controller.dart';
-import 'package:flutter_eproject/Screens/Authentication/Views/Home_Screen.dart';
 import 'package:provider/provider.dart';
 import 'signup_screen.dart';
 import 'package:flutter_eproject/Controllers/password_controller.dart';
@@ -133,19 +132,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               onPressed: () async {
-                if (_key.currentState!.validate()) {
-                String result =  await authController.loginUser(
-                    emailController.text.trim(),
-                    passwordController.text.trim(),
+                final authController = context.read<AuthController>();
+                bool success = await authController.login(emailController.text, passwordController.text);
+
+                if (success) {
+                  if (authController.isAdmin) {
+                    Navigator.pushReplacementNamed(context, '/admin-dashboard');
+                  } else {
+                    // Navigate to user home
+                    Navigator.pushReplacementNamed(context, '/user-home');
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(authController.error ?? 'Login failed')),
                   );
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content : Text(result)) );
-
-                if(result == "User Logged in Successful"){
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context){
-                    return HomeScreen();
-                  }), (route) => false );
-                }
-
                 }
               },
               child: const Text(
@@ -166,12 +166,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     return;
                   }
 
-                  String result = await authController.resetPassword(
+                  bool result = await authController.resetPassword(
                     emailController.text.trim(),
                   );
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(result)),
+                    SnackBar(content: Text(result as String)),
                   );
                 },
                 child: const Text(

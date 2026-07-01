@@ -72,8 +72,8 @@ class AdminOrderModel {
       userName: json['userName'] ?? 'N/A',
       userEmail: json['userEmail'] ?? 'N/A',
       items: (json['items'] as List?)
-              ?.map((item) => AdminOrderItem.fromJson(item))
-              .toList() ??
+          ?.map((item) => AdminOrderItem.fromJson(item))
+          .toList() ??
           [],
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
       paymentMethod: json['paymentMethod'] ?? 'N/A',
