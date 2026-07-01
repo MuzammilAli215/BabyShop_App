@@ -72,7 +72,7 @@ class AdminOrderModel {
       userName: json['userName'] ?? 'N/A',
       userEmail: json['userEmail'] ?? 'N/A',
       items: (json['items'] as List?)
-          ?.map((item) => AdminOrderItem.fromJson(item))
+          ?.map((item) => AdminOrderItem.fromJson(Map<String, dynamic>.from(item as Map)))
           .toList() ??
           [],
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),

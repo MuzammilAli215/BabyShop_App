@@ -209,8 +209,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         // border: Border.left(
         //   color: color,
         //   width: 4,
-        ),
-      );
+        // ),
+      ),
       child: Row(
         children: [
           Container(
@@ -245,7 +245,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ),
         ],
-      );
+      ),
+    );
   }
 
   Widget _buildManagementButton(

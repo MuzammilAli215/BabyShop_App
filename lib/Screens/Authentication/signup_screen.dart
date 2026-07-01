@@ -124,11 +124,7 @@ final AuthController authController = AuthController();
                   SnackBar(content: Text(authController.error ?? 'Registration failed')),
                 );
               }
-              );
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(result as String)),
-              );
             }, child: const Text("Sign Up"),
           ),
         ],

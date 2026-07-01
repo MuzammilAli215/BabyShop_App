@@ -166,12 +166,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     return;
                   }
 
-                  bool result = await authController.resetPassword(
+                  final result = await authController.resetPassword(
                     emailController.text.trim(),
                   );
 
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(result as String)),
+                    SnackBar(
+                      content: Text(
+                        result
+                            ? 'Password reset email sent'
+                            : authController.error ?? 'Password reset failed',
+                      ),
+                    ),
                   );
                 },
                 child: const Text(

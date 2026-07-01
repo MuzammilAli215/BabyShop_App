@@ -79,7 +79,7 @@ class AuthController with ChangeNotifier {
 
   // Register method for users
   Future<bool> register(
-      String name, String email, String password, String phone) async {
+      String name, String email, String password, [String phone = '']) async {
     try {
       _isLoading = true;
       _error = null;
@@ -141,6 +141,10 @@ class AuthController with ChangeNotifier {
       _error = 'Error logging out';
       notifyListeners();
     }
+  }
+  Future<String> logoutUser() async {
+    await logout();
+    return error ?? 'Logged out successfully';
   }
 
   // Forgot password

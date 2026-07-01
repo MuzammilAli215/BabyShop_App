@@ -1,13 +1,26 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_eproject/Controllers/auth_controller.dart';
-import 'package:flutter_eproject/Utils/app_theme.dart';
-import 'lib/Screens/Authentication/Views/splash_screen.dart';
+import 'Controllers/admin_controller.dart';
+import 'Controllers/auth_controller.dart';
+import 'Controllers/password_controller.dart';
+import 'Screens/Admin/admin_dashboard_screen.dart';
+import 'Screens/Admin/admin_orders_screen.dart';
+import 'Screens/Admin/admin_products_screen.dart';
+import 'Screens/Admin/admin_users_screen.dart';
+import 'Screens/Authentication/Views/home_screen.dart';
+import 'Screens/Authentication/Views/splash_screen.dart';
+import 'Screens/Authentication/login_screen.dart';
+import 'Screens/Authentication/signup_screen.dart';
+import 'Utils/app_theme.dart';
+import 'firebase_options.dart';
 
-void main() async {
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(); // Uncomment when Firebase is set up
-  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -21,14 +34,23 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AuthController()..checkAuthStatus(),
         ),
-        // Add AdminController here when needed
-        // ChangeNotifierProvider(create: (_) => AdminController()),
+        ChangeNotifierProvider(create: (_) => PasswordController()),
+        ChangeNotifierProvider(create: (_) => AdminController()),
       ],
       child: MaterialApp(
         title: 'BabyShop',
         theme: AppTheme.lightTheme,
         home: const SplashScreen(),
         debugShowCheckedModeBanner: false,
+        routes: {
+          '/login': (_) => const LoginScreen(),
+          '/signup': (_) => SignupScreen(),
+          '/user-home': (_) => const HomeScreen(),
+          '/admin-dashboard': (_) => const AdminDashboardScreen(),
+          '/admin-products': (_) => const AdminProductsScreen(),
+          '/admin-orders': (_) => const AdminOrdersScreen(),
+          '/admin-users': (_) => const AdminUsersScreen(),
+        },
       ),
     );
   }

@@ -30,7 +30,7 @@ class AdminUserModel {
       email: json['email'] ?? 'N/A',
       phone: json['phone'] ?? 'N/A',
       isDisabled: json['isDisabled'] ?? false,
-      isAdmin: json['role'] == 'admin' || json['isAdmin'] ?? false,
+      isAdmin: json['role'] == 'admin' || (json['isAdmin'] ?? false),
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
