@@ -16,6 +16,7 @@ import 'Screens/Authentication/login_screen.dart';
 import 'Screens/Authentication/signup_screen.dart';
 import 'Screens/Checkout/address_screen.dart';
 import 'Screens/Home/main_navigation_screen.dart';
+import 'Screens/Orders/orders_screen.dart';
 import 'Utils/app_theme.dart';
 import 'firebase_options.dart';
 
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
           '/admin-orders': (_) => const AdminOrdersScreen(),
           '/admin-users': (_) => const AdminUsersScreen(),
           '/checkout': (_) => const AddressScreen(),
+          '/orders': (_) => const OrdersScreen(),
         },
       ),
     );

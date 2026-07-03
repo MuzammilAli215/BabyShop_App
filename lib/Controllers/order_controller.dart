@@ -11,14 +11,49 @@ class OrderController with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isPlacing = false;
+  bool _isFetching = false;
   String? _error;
   OrderModel? _lastOrder;
+  List<OrderModel> _orders = [];
 
   bool get isPlacing => _isPlacing;
+  bool get isFetching => _isFetching;
   String? get error => _error;
   OrderModel? get lastOrder => _lastOrder;
+  List<OrderModel> get orders => List.unmodifiable(_orders);
 
   String? get _uid => _auth.currentUser?.uid;
+
+  /// Fetches all orders for the current user, newest first.
+  Future<void> fetchUserOrders() async {
+    final uid = _uid;
+    if (uid == null) {
+      _orders = [];
+      notifyListeners();
+      return;
+    }
+
+    _isFetching = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final snapshot = await _firestore
+          .collection('orders')
+          .where('userId', isEqualTo: uid)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      _orders = snapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isFetching = false;
+      notifyListeners();
+    }
+  }
 
   /// Places a new order in Firestore and returns the saved [OrderModel].
   /// Throws on failure so the UI can surface the error.

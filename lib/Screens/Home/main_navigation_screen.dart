@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../Controllers/cart_controller.dart';
 import '../../Utils/app_theme.dart';
 import '../Cart/cart_screen.dart';
+import '../Orders/orders_screen.dart';
 import 'user_home_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -20,11 +21,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   static const List<Widget> _pages = [
     UserHomeScreen(),
     CartScreen(),
-    _ComingSoonPage(
-      icon: Icons.receipt_long,
-      title: 'Orders',
-      message: 'Your order history will appear here soon.',
-    ),
+    OrdersScreen(),
     _ComingSoonPage(
       icon: Icons.person,
       title: 'Profile',
