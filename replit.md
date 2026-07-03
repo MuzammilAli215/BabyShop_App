@@ -53,10 +53,10 @@ lib/
 | 2 | Home, Product grid, Search, Product Details | ✅ Done |
 | 3 | Cart | ✅ Done |
 | 3 | Checkout (Address → Payment → Confirmation) | ✅ Done |
-| 4 | Orders screen, Order tracking | 🔜 Next |
+| 4 | Orders screen, Order tracking | ✅ Done |
 | 4 | Reviews & Ratings | 🔜 Next |
 | 5 | Admin Panel | ✅ Done |
-| — | Profile screen | 🔜 Next |
+| — | Profile screen (edit, password, addresses, logout) | ✅ Done |
 | — | Support / FAQ | 🔜 Next |
 
 ## Known Issues / TODOs

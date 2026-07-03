@@ -6,6 +6,7 @@ import '../../Controllers/cart_controller.dart';
 import '../../Utils/app_theme.dart';
 import '../Cart/cart_screen.dart';
 import '../Orders/orders_screen.dart';
+import '../Profile/profile_screen.dart';
 import 'user_home_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -22,11 +23,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     UserHomeScreen(),
     CartScreen(),
     OrdersScreen(),
-    _ComingSoonPage(
-      icon: Icons.person,
-      title: 'Profile',
-      message: 'Manage your profile, addresses and more soon.',
-    ),
+    ProfileScreen(),
   ];
 
   @override
