@@ -150,13 +150,17 @@ class _AddressScreenState extends State<AddressScreen> {
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
+    TextInputType? keyboardType,
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
+    // Flutter requires keyboardType.multiline when maxLines > 1
+    final resolvedKeyboardType = maxLines > 1
+        ? TextInputType.multiline
+        : (keyboardType ?? TextInputType.text);
     return TextFormField(
       controller: controller,
-      keyboardType: keyboardType,
+      keyboardType: resolvedKeyboardType,
       maxLines: maxLines,
       textInputAction:
           maxLines > 1 ? TextInputAction.newline : TextInputAction.next,

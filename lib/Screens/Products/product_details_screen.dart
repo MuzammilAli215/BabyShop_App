@@ -19,6 +19,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   int _quantity = 1;
 
   @override
+  void initState() {
+    super.initState();
+    // Pre-fill quantity from whatever is already in the cart
+    final cartQty = context
+        .read<CartController>()
+        .quantityOf(widget.product.productId);
+    if (cartQty > 0) _quantity = cartQty;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final product = widget.product;
 
@@ -139,10 +149,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ElevatedButton.icon(
-            onPressed: product.isInStock ? _addToCart : null,
-            icon: const Icon(Icons.shopping_cart),
-            label: const Text('Add to Cart'),
+          child: Consumer<CartController>(
+            builder: (context, cart, _) {
+              final alreadyInCart = cart.quantityOf(product.productId) > 0;
+              return ElevatedButton.icon(
+                onPressed: product.isInStock ? _addToCart : null,
+                icon: Icon(alreadyInCart
+                    ? Icons.shopping_cart
+                    : Icons.shopping_cart_outlined),
+                label: Text(alreadyInCart ? 'Update Cart' : 'Add to Cart'),
+              );
+            },
           ),
         ),
       ),
@@ -152,12 +169,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Future<void> _addToCart() async {
     final product = widget.product;
     final cart = context.read<CartController>();
-    await cart.addToCart(product, quantity: _quantity);
+    final wasInCart = cart.quantityOf(product.productId) > 0;
+
+    // Always SET the quantity so tapping "Update Cart" replaces, not stacks.
+    await cart.setQuantity(product, _quantity);
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${product.name} x$_quantity added to cart.'),
+        content: Text(
+          wasInCart
+              ? '${product.name} updated to x$_quantity in cart.'
+              : '${product.name} x$_quantity added to cart.',
+        ),
         duration: const Duration(seconds: 2),
       ),
     );

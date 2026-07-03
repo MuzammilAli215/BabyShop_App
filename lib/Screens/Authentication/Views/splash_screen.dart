@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_eproject/Screens/Authentication/login_screen.dart';
+import 'package:flutter_eproject/Controllers/auth_controller.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -42,15 +44,25 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () async {
       if (!mounted) return;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
-        ),
-      );
+      final auth = context.read<AuthController>();
+
+      // Wait for role to load if user is already signed in
+      if (auth.user != null && auth.userRole == null) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      if (!mounted) return;
+
+      if (auth.user == null) {
+        Navigator.pushReplacementNamed(context, '/login');
+      } else if (auth.isAdmin) {
+        Navigator.pushReplacementNamed(context, '/admin-dashboard');
+      } else {
+        Navigator.pushReplacementNamed(context, '/user-home');
+      }
     });
   }
 

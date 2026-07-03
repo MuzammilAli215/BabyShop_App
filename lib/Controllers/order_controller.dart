@@ -38,15 +38,17 @@ class OrderController with ChangeNotifier {
     notifyListeners();
 
     try {
+      // NOTE: combining .where() + .orderBy() on different fields requires a
+      // Firestore composite index. Sort in memory to avoid the index requirement.
       final snapshot = await _firestore
           .collection('orders')
           .where('userId', isEqualTo: uid)
-          .orderBy('createdAt', descending: true)
           .get();
 
       _orders = snapshot.docs
           .map((doc) => OrderModel.fromJson(doc.data()))
-          .toList();
+          .toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
       _error = e.toString();
     } finally {

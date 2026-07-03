@@ -43,6 +43,33 @@ class CartController with ChangeNotifier {
     return 0;
   }
 
+  /// Sets the quantity of an existing cart item to an exact value.
+  /// If the product is not in the cart, adds it. Removes it if [quantity] <= 0.
+  Future<void> setQuantity(ProductModel product, int quantity) async {
+    if (quantity <= 0) {
+      await removeItem(product.productId);
+      return;
+    }
+    final clamped = quantity.clamp(1, product.stock).toInt();
+    final index =
+        _items.indexWhere((item) => item.productId == product.productId);
+    if (index >= 0) {
+      _items[index] = _items[index].copyWith(quantity: clamped);
+    } else {
+      _items.add(CartItem(
+        productId: product.productId,
+        name: product.name,
+        brand: product.brand,
+        image: product.image,
+        price: product.price,
+        stock: product.stock,
+        quantity: clamped,
+      ));
+    }
+    notifyListeners();
+    await _persist();
+  }
+
   Future<void> loadCart() async {
     final doc = _cartDoc;
     if (doc == null) return;

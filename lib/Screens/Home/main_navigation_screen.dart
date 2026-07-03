@@ -78,9 +78,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   Widget _cartIcon(CartController cart, IconData icon) {
     return badges.Badge(
-      showBadge: cart.itemCount > 0,
+      showBadge: cart.distinctItemCount > 0,
       badgeContent: Text(
-        '${cart.itemCount}',
+        '${cart.distinctItemCount}',
         style: const TextStyle(color: Colors.white, fontSize: 10),
       ),
       badgeStyle: const badges.BadgeStyle(badgeColor: AppTheme.errorColor),

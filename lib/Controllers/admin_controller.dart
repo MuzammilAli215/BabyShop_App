@@ -153,24 +153,21 @@ class AdminController with ChangeNotifier {
   // ============ ORDER MANAGEMENT METHODS ============
 
   Future<void> loadOrders() async {
-    try {
-      _ordersLoading = true;
-      _error = null;
-      notifyListeners();
+    _ordersLoading = true;
+    _error = null;
+    notifyListeners();
 
-      final snapshot = await _firestore
-          .collection('orders')
-          .orderBy('createdAt', descending: true)
-          .get();
+    try {
+      final snapshot = await _firestore.collection('orders').get();
 
       _orders = snapshot.docs
           .map((doc) => AdminOrderModel.fromJson(doc.data(), doc.id))
-          .toList();
-
-      _ordersLoading = false;
-      notifyListeners();
+          .toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
       _error = 'Error loading orders: ${e.toString()}';
+      _orders = [];
+    } finally {
       _ordersLoading = false;
       notifyListeners();
     }
