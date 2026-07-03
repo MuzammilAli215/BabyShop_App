@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Controllers/admin_controller.dart';
 import 'Controllers/auth_controller.dart';
+import 'Controllers/cart_controller.dart';
 import 'Controllers/password_controller.dart';
 import 'Controllers/product_controller.dart';
 import 'Screens/Admin/admin_dashboard_screen.dart';
@@ -12,7 +13,7 @@ import 'Screens/Admin/admin_users_screen.dart';
 import 'Screens/Authentication/Views/splash_screen.dart';
 import 'Screens/Authentication/login_screen.dart';
 import 'Screens/Authentication/signup_screen.dart';
-import 'Screens/Home/user_home_screen.dart';
+import 'Screens/Home/main_navigation_screen.dart';
 import 'Utils/app_theme.dart';
 import 'firebase_options.dart';
 
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PasswordController()),
         ChangeNotifierProvider(create: (_) => AdminController()),
         ChangeNotifierProvider(create: (_) => ProductController()),
+        ChangeNotifierProvider(create: (_) => CartController()),
       ],
       child: MaterialApp(
         title: 'BabyShop',
@@ -47,7 +49,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (_) => const LoginScreen(),
           '/signup': (_) => SignupScreen(),
-          '/user-home': (_) => const UserHomeScreen(),
+          '/user-home': (_) => const MainNavigationScreen(),
           '/admin-dashboard': (_) => const AdminDashboardScreen(),
           '/admin-products': (_) => const AdminProductsScreen(),
           '/admin-orders': (_) => const AdminOrdersScreen(),

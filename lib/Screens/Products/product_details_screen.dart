@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../Controllers/cart_controller.dart';
 import '../../Models/product_model.dart';
 import '../../Utils/app_theme.dart';
 
@@ -138,21 +140,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: ElevatedButton.icon(
-            onPressed: product.isInStock
-                ? () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${product.name} x$_quantity will be added to cart in the next phase.',
-                  ),
-                ),
-              );
-            }
-                : null,
+            onPressed: product.isInStock ? _addToCart : null,
             icon: const Icon(Icons.shopping_cart),
             label: const Text('Add to Cart'),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _addToCart() async {
+    final product = widget.product;
+    final cart = context.read<CartController>();
+    await cart.addToCart(product, quantity: _quantity);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${product.name} x$_quantity added to cart.'),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
