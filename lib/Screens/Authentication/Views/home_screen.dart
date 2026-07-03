@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_eproject/Controllers/auth_controller.dart';
-import 'package:flutter_eproject/Utils/app_theme.dart';
 import 'splash_screen.dart';
 
 class HomeScreen extends StatelessWidget {

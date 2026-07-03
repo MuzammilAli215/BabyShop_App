@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../Models/admin_order_model.dart';
 import '../Models/admin_product_model.dart';
 import '../Models/admin_user_model.dart';
@@ -9,7 +7,6 @@ import '../Models/admin_dashboard_model.dart';
 
 class AdminController with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Dashboard Stats
   AdminDashboardStats? _dashboardStats;
