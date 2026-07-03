@@ -5,12 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_eproject/Controllers/password_controller.dart';
 
 class SignupScreen extends StatelessWidget {
-   SignupScreen({super.key});
-final AuthController authController = AuthController();
+  SignupScreen({super.key});
 
-   final TextEditingController usernameController = TextEditingController();
-   final TextEditingController emailController = TextEditingController();
-   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -111,20 +110,22 @@ final AuthController authController = AuthController();
             ),
             onPressed: () async {
               final authController = context.read<AuthController>();
-              bool success = await authController.register(
+              final success = await authController.register(
                 usernameController.text,
                 emailController.text,
-                passwordController.text
+                passwordController.text,
               );
 
+              if (!context.mounted) return;
               if (success) {
                 Navigator.pushReplacementNamed(context, '/user-home');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(authController.error ?? 'Registration failed')),
+                  SnackBar(
+                    content: Text(authController.error ?? 'Registration failed'),
+                  ),
                 );
               }
-
             }, child: const Text("Sign Up"),
           ),
         ],

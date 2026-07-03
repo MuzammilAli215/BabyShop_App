@@ -5,6 +5,8 @@ import '../Screens/Admin/admin_dashboard_screen.dart';
 import '../Screens/Admin/admin_products_screen.dart';
 import '../Screens/Admin/admin_orders_screen.dart';
 import '../Screens/Admin/admin_users_screen.dart';
+import '../Screens/Authentication/login_screen.dart';
+import '../Screens/Home/main_navigation_screen.dart';
 
 class AppNavigator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -36,8 +38,7 @@ class RoleBasedNavigator extends StatelessWidget {
       builder: (context, authController, _) {
         // Check if user is logged in
         if (authController.user == null) {
-          // User not logged in - navigate to login screen
-          return const LoginPlaceholder();
+          return const LoginScreen();
         }
 
         // Check if user is disabled
@@ -60,59 +61,11 @@ class RoleBasedNavigator extends StatelessWidget {
               // Admin user - show admin dashboard
               return AdminDashboardScreen();
             } else {
-              // Regular user - show user home screen
-              return const UserPlaceholder();
+              return const MainNavigationScreen();
             }
           },
         );
       },
-    );
-  }
-}
-
-// Placeholder for login screen (replace with your actual login screen)
-class LoginPlaceholder extends StatelessWidget {
-  const LoginPlaceholder({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigate to login screen
-            // Navigator.pushNamed(context, '/login');
-          },
-          child: const Text('Go to Login'),
-        ),
-      ),
-    );
-  }
-}
-
-// Placeholder for user home screen (replace with your actual user home screen)
-class UserPlaceholder extends StatelessWidget {
-  const UserPlaceholder({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('User Home')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Welcome to User Home'),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                context.read<AuthController>().logout();
-              },
-              child: const Text('Logout'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
