@@ -1,0 +1,591 @@
+@Mudassir824472/BabyShop_App Yes, you can build this entire application in **Flutter (Dart)** using **Android Studio**, and it is an excellent university-level final project.
+
+Based on your previous conversations, I know you've already worked with Flutter and Firebase, so I recommend using **Flutter + Firebase** instead of a custom backend because it is easier to develop, secure, and demonstrate.
+
+# Tech Stack
+
+### Frontend
+
+* Flutter (Dart)
+
+### Backend
+
+* Firebase Authentication
+* Cloud Firestore
+* Firebase Storage
+* Firebase Cloud Messaging (optional)
+
+### State Management
+
+* Provider (since you've already used it)
+
+### Database
+
+* Cloud Firestore
+
+### Storage
+
+* Firebase Storage
+
+### Payment
+
+* Dummy Payment Screen (as required)
+
+---
+
+# Project Architecture
+
+```
+BabyShopHub/
+│
+├── lib/
+│
+├── Models/
+│   ├── user_model.dart
+│   ├── product_model.dart
+│   ├── order_model.dart
+│   ├── review_model.dart
+│
+├── Controllers/
+│   ├── auth_controller.dart
+│   ├── product_controller.dart
+│   ├── cart_controller.dart
+│   ├── order_controller.dart
+│   ├── review_controller.dart
+│   ├── profile_controller.dart
+│
+├── Services/
+│   ├── firebase_service.dart
+│   ├── auth_service.dart
+│   ├── firestore_service.dart
+│
+├── Screens/
+│
+│   ├── Authentication/
+│   │      Login
+│   │      Register
+│   │      Forgot Password
+│   │
+│   ├── Home/
+│   │      Home Screen
+│   │      Search
+│   │      Categories
+│   │
+│   ├── Products/
+│   │      Product Details
+│   │      Reviews
+│   │
+│   ├── Cart/
+│   │      Shopping Cart
+│   │
+│   ├── Checkout/
+│   │      Address
+│   │      Dummy Payment
+│   │      Order Success
+│   │
+│   ├── Orders/
+│   │      Order History
+│   │      Order Tracking
+│   │
+│   ├── Profile/
+│   │      User Profile
+│   │      Addresses
+│   │      Payment Methods
+│   │
+│   ├── Support/
+│   │      Contact Us
+│   │      FAQ
+│   │
+│   ├── Admin/
+│   │      Dashboard
+│   │      Products
+│   │      Orders
+│   │      Users
+│
+├── Widgets/
+│
+├── Utils/
+│
+└── main.dart
+```
+
+---
+
+# Firebase Collections
+
+## users
+
+```
+uid
+name
+email
+phone
+role (user/admin)
+addresses
+paymentMethods
+createdAt
+```
+
+---
+
+## products
+
+```
+productId
+name
+description
+price
+brand
+category
+image
+stock
+rating
+```
+
+---
+
+## orders
+
+```
+orderId
+userId
+items
+totalPrice
+paymentMethod
+status
+Pending
+Processing
+Shipped
+Delivered
+Cancelled
+createdAt
+```
+
+---
+
+## reviews
+
+```
+reviewId
+productId
+userId
+rating
+comment
+date
+```
+
+---
+
+## cart
+
+```
+userId
+products[]
+```
+
+---
+
+# Screens Required
+
+## Splash Screen
+
+* App Logo
+* Auto Login
+
+---
+
+## Login
+
+* Email
+* Password
+* Login button
+* Register
+* Forgot Password
+
+---
+
+## Register
+
+* Name
+* Email
+* Password
+* Confirm Password
+
+---
+
+## Home Screen
+
+Contains
+
+* Search Bar
+* Categories
+* Featured Products
+* New Arrivals
+* Bottom Navigation
+
+---
+
+## Categories
+
+Examples
+
+* Diapers
+* Baby Food
+* Toys
+* Clothes
+* Baby Care
+* Feeding
+* Bath
+* Accessories
+
+---
+
+## Product Details
+
+* Multiple Images
+* Product Name
+* Description
+* Brand
+* Price
+* Quantity Selector
+* Reviews
+* Add to Cart
+
+---
+
+## Cart
+
+* Product List
+* Quantity + -
+* Remove Item
+* Total
+* Checkout
+
+---
+
+## Checkout
+
+Step 1
+
+Select Address
+
+↓
+
+Step 2
+
+Dummy Payment
+
+↓
+
+Step 3
+
+Order Confirmation
+
+---
+
+## Order History
+
+Display
+
+* Order Number
+* Date
+* Products
+* Status
+
+---
+
+## Order Tracking
+
+Status Timeline
+
+```
+Order Placed
+
+↓
+
+Confirmed
+
+↓
+
+Packed
+
+↓
+
+Shipped
+
+↓
+
+Out for Delivery
+
+↓
+
+Delivered
+```
+
+---
+
+## Profile
+
+* Edit Profile
+* Change Password
+* Address
+* Payment Method
+* Logout
+
+---
+
+## Reviews
+
+Users can
+
+⭐ Rate Product
+
+⭐ Write Review
+
+⭐ View Reviews
+
+---
+
+## Support
+
+* Contact Form
+* FAQs
+
+---
+
+# Admin Panel
+
+## Admin Login
+
+Separate login.
+
+---
+
+## Dashboard
+
+Cards
+
+```
+Total Users
+
+Total Orders
+
+Total Products
+
+Revenue
+```
+
+---
+
+## Product Management
+
+* Add Product
+* Edit Product
+* Delete Product
+* Update Stock
+
+---
+
+## User Management
+
+* View Users
+* Disable User
+* Delete User
+
+---
+
+## Order Management
+
+* View Orders
+* Update Status
+* Track Orders
+
+---
+
+# Bottom Navigation
+
+```
+Home
+
+Search
+
+Cart
+
+Orders
+
+Profile
+```
+
+---
+
+# Flutter Packages
+
+```yaml
+firebase_core
+
+firebase_auth
+
+cloud_firestore
+
+firebase_storage
+
+provider
+
+shared_preferences
+
+cached_network_image
+
+image_picker
+
+flutter_rating_bar
+
+carousel_slider
+
+badges
+
+intl
+
+uuid
+
+fluttertoast
+
+lottie
+
+connectivity_plus
+```
+
+---
+
+# Functional Requirements Checklist
+
+| Requirement              | Status |
+| ------------------------ | ------ |
+| Registration             | ✅      |
+| Login                    | ✅      |
+| Authentication           | ✅      |
+| User Profile             | ✅      |
+| Product Categories       | ✅      |
+| Search                   | ✅      |
+| Product Details          | ✅      |
+| Reviews                  | ✅      |
+| Ratings                  | ✅      |
+| Add to Cart              | ✅      |
+| Update Cart              | ✅      |
+| Remove Cart Item         | ✅      |
+| Checkout                 | ✅      |
+| Dummy Payment            | ✅      |
+| Order Confirmation       | ✅      |
+| Order History            | ✅      |
+| Order Tracking           | ✅      |
+| Seller Rating            | ✅      |
+| Admin Product Management | ✅      |
+| Admin User Management    | ✅      |
+| Admin Order Management   | ✅      |
+| Support Page             | ✅      |
+
+---
+
+# Non-Functional Requirements
+
+### Responsiveness
+
+* Provider state management
+* Firestore indexing
+* Cached images
+
+---
+
+### Loading Time
+
+* Splash screen
+* Lazy loading
+* CachedNetworkImage
+
+---
+
+### UI
+
+Material 3 Design
+
+---
+
+### Accessibility
+
+* Large readable fonts
+* Proper button sizes
+* Icons
+* Labels
+
+---
+
+### Security
+
+* Firebase Authentication
+* Firestore Security Rules
+* Role-based Access
+
+---
+
+### Scalability
+
+* MVC architecture
+* Modular controllers
+* Firestore collections
+
+---
+
+### Documentation
+
+Include:
+
+* User Guide
+* FAQs
+* Developer Documentation
+* ER Diagram
+* Use Case Diagram
+* Class Diagram
+* Sequence Diagram
+* Activity Diagram
+
+---
+
+# Suggested Timeline
+
+### Phase 1
+
+* Project setup
+* Firebase integration
+* Authentication
+
+### Phase 2
+
+* Home
+* Categories
+* Search
+* Product Details
+
+### Phase 3
+
+* Cart
+* Checkout
+* Dummy Payment
+
+### Phase 4
+
+* Orders
+* Tracking
+* Reviews
+
+### Phase 5
+
+* Admin Panel
+
+### Phase 6
+
+* Testing
+* Documentation
+* Demo Video
+
+## I can guide you through building this project step by step. We can create it professionally using clean code and the MVC architecture, covering every screen, Firebase integration, Provider state management, and the admin panel. By the end, you'll have a complete **BabyShopHub** Android application that satisfies all the functional and non-functional requirements and is suitable for submission as a BSCS semester project.
+
+this is my roadmap so please review my project thoroughly and help me get on to the next code after that
