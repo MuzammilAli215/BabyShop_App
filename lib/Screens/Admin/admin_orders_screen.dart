@@ -69,7 +69,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
           return Column(
             children: [
-              // Filter Chips
+              // Filter Chips – generated from enum so adding new statuses never breaks this
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: SingleChildScrollView(
@@ -79,52 +79,27 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                       FilterChip(
                         label: const Text('All'),
                         selected: _selectedFilter == null,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = null;
-                          });
-                        },
+                        onSelected: (_) => setState(() => _selectedFilter = null),
                       ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('Pending'),
-                        selected: _selectedFilter == OrderStatus.pending,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = OrderStatus.pending;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('Processing'),
-                        selected: _selectedFilter == OrderStatus.processing,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = OrderStatus.processing;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('Shipped'),
-                        selected: _selectedFilter == OrderStatus.shipped,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = OrderStatus.shipped;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('Delivered'),
-                        selected: _selectedFilter == OrderStatus.delivered,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = OrderStatus.delivered;
-                          });
-                        },
-                      ),
+                      ...OrderStatus.values.map((status) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: FilterChip(
+                            label: Text(_statusLabel(status)),
+                            selected: _selectedFilter == status,
+                            selectedColor:
+                                _getStatusColor(status).withValues(alpha: 0.2),
+                            checkmarkColor: _getStatusColor(status),
+                            labelStyle: _selectedFilter == status
+                                ? TextStyle(
+                                    color: _getStatusColor(status),
+                                    fontWeight: FontWeight.bold)
+                                : null,
+                            onSelected: (_) =>
+                                setState(() => _selectedFilter = status),
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),

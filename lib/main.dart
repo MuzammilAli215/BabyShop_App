@@ -12,6 +12,7 @@ import 'Screens/Admin/admin_orders_screen.dart';
 import 'Screens/Admin/admin_products_screen.dart';
 import 'Screens/Admin/admin_users_screen.dart';
 import 'Screens/Authentication/Views/splash_screen.dart';
+import 'Screens/Authentication/forgot_password_screen.dart';
 import 'Screens/Authentication/login_screen.dart';
 import 'Screens/Authentication/signup_screen.dart';
 import 'Screens/Checkout/address_screen.dart';
@@ -63,6 +64,7 @@ class MyApp extends StatelessWidget {
           '/orders': (_) => const OrdersScreen(),
           '/profile': (_) => const ProfileScreen(),
           '/cart': (_) => const MainNavigationScreen(),
+          '/forgot-password': (_) => const ForgotPasswordScreen(),
         },
       ),
     );
