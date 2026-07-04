@@ -1,16 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../Controllers/order_controller.dart';
 import '../../Models/order_model.dart';
 import '../../Utils/app_theme.dart';
 import 'order_status_badge.dart';
 
 class OrderTrackingScreen extends StatelessWidget {
-  final OrderModel order;
+  final String orderId;
 
-  const OrderTrackingScreen({super.key, required this.order});
+  const OrderTrackingScreen({super.key, required this.orderId});
 
-  // All statuses in timeline order (excluding cancelled)
   static const _timeline = [
     OrderStatus.pending,
     OrderStatus.confirmed,
@@ -22,133 +23,138 @@ class OrderTrackingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shortId = shortOrderId(order.orderId);
-    final isCancelled = order.status == OrderStatus.cancelled;
+    final stream = context.read<OrderController>().streamOrder(orderId);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Order $shortId'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Status banner ──
-            _StatusBanner(status: order.status, isCancelled: isCancelled),
-            const SizedBox(height: 16),
+      appBar: AppBar(title: Text('Order ${shortOrderId(orderId)}')),
+      body: StreamBuilder<OrderModel>(
+        stream: stream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text('Could not load order details.'));
+          }
 
-            // ── Tracking timeline ──
-            if (!isCancelled) ...[
-              _SectionHeader('Tracking'),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 16, horizontal: 20),
-                  child: _Timeline(
-                    steps: _timeline,
-                    current: order.status,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
+          final order = snapshot.data!;
+          final isCancelled = order.status == OrderStatus.cancelled;
 
-            // ── Order items ──
-            _SectionHeader('Items (${order.items.length})'),
-            Card(
-              child: Column(
-                children: [
-                  ...order.items.asMap().entries.map((entry) {
-                    final isLast = entry.key == order.items.length - 1;
-                    return Column(
-                      children: [
-                        _ItemRow(item: entry.value),
-                        if (!isLast)
-                          const Divider(height: 1, indent: 16, endIndent: 16),
-                      ],
-                    );
-                  }),
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Total Paid',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '\$${order.totalPrice.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.successColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Status banner ──
+                _StatusBanner(status: order.status, isCancelled: isCancelled),
+                const SizedBox(height: 16),
 
-            // ── Delivery info ──
-            _SectionHeader('Delivery Address'),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.location_on_outlined,
-                        color: AppTheme.primaryColor),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            order.address.fullName,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(order.address.phone,
-                              style: Theme.of(context).textTheme.bodyMedium),
-                          Text(order.address.addressLine,
-                              style: Theme.of(context).textTheme.bodyMedium),
-                          Text(
-                            '${order.address.city} ${order.address.postalCode}',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
+                // ── Tracking timeline ──
+                if (!isCancelled) ...[
+                  _SectionHeader('Tracking'),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 20),
+                      child: _Timeline(
+                        steps: _timeline,
+                        current: order.status,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
-            // ── Payment ──
-            _SectionHeader('Payment'),
-            Card(
-              child: ListTile(
-                leading: Icon(
-                  order.paymentMethod == 'Cash on Delivery'
-                      ? Icons.money
-                      : Icons.credit_card,
-                  color: AppTheme.primaryColor,
+                // ── Order items ──
+                _SectionHeader('Items (${order.items.length})'),
+                Card(
+                  child: Column(
+                    children: [
+                      ...order.items.asMap().entries.map((entry) {
+                        final isLast = entry.key == order.items.length - 1;
+                        return Column(
+                          children: [
+                            _ItemRow(item: entry.value),
+                            if (!isLast)
+                              const Divider(height: 1, indent: 16, endIndent: 16),
+                          ],
+                        );
+                      }),
+                      const Divider(height: 1),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        child: Row(
+                          children: [
+                            const Text('Total Paid',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            const Spacer(),
+                            Text(
+                              '\$${order.totalPrice.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.successColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                title: Text(order.paymentMethod),
-                subtitle: const Text('Payment method'),
-              ),
+                const SizedBox(height: 16),
+
+                // ── Delivery info ──
+                _SectionHeader('Delivery Address'),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            color: AppTheme.primaryColor),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(order.address.fullName,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Text(order.address.phone),
+                              Text(order.address.addressLine),
+                              Text(
+                                  '${order.address.city} ${order.address.postalCode}'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // ── Payment ──
+                _SectionHeader('Payment'),
+                Card(
+                  child: ListTile(
+                    leading: Icon(
+                      order.paymentMethod == 'Cash on Delivery'
+                          ? Icons.money
+                          : Icons.credit_card,
+                      color: AppTheme.primaryColor,
+                    ),
+                    title: Text(order.paymentMethod),
+                    subtitle: const Text('Payment method'),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
-            const SizedBox(height: 24),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -191,11 +197,9 @@ class _StatusBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Order Status',
-                  style: TextStyle(
-                      fontSize: 12, color: Colors.grey.shade600),
-                ),
+                Text('Order Status',
+                    style: TextStyle(
+                        fontSize: 12, color: Colors.grey.shade600)),
                 const SizedBox(height: 2),
                 OrderStatusBadge(status: status),
               ],
@@ -220,20 +224,15 @@ class _Timeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = steps.indexOf(current);
-
     return Column(
       children: steps.asMap().entries.map((entry) {
         final idx = entry.key;
         final step = entry.value;
-        final isDone = idx < currentIndex;
-        final isActive = idx == currentIndex;
-        final isLast = idx == steps.length - 1;
-
         return _TimelineRow(
           label: step.label,
-          isDone: isDone,
-          isActive: isActive,
-          isLast: isLast,
+          isDone: idx < currentIndex,
+          isActive: idx == currentIndex,
+          isLast: idx == steps.length - 1,
         );
       }).toList(),
     );
@@ -265,7 +264,6 @@ class _TimelineRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Dot + line ──
           SizedBox(
             width: 32,
             child: Column(
@@ -274,14 +272,12 @@ class _TimelineRow extends StatelessWidget {
                   width: 22,
                   height: 22,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _dotColor,
-                  ),
+                      shape: BoxShape.circle, color: _dotColor),
                   child: isDone
                       ? const Icon(Icons.check, size: 14, color: Colors.white)
                       : isActive
-                          ? const Icon(Icons.circle, size: 10,
-                              color: Colors.white)
+                          ? const Icon(Icons.circle,
+                              size: 10, color: Colors.white)
                           : null,
                 ),
                 if (!isLast)
@@ -297,15 +293,14 @@ class _TimelineRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-
-          // ── Label ──
           Padding(
             padding: const EdgeInsets.only(bottom: 20),
             child: Text(
               label,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                fontWeight:
+                    isActive ? FontWeight.bold : FontWeight.normal,
                 color: isActive
                     ? AppTheme.primaryColor
                     : isDone
@@ -326,7 +321,6 @@ class _TimelineRow extends StatelessWidget {
 
 class _ItemRow extends StatelessWidget {
   final OrderItem item;
-
   const _ItemRow({required this.item});
 
   @override
@@ -343,14 +337,12 @@ class _ItemRow extends StatelessWidget {
               child: item.image.isEmpty
                   ? Container(
                       color: Colors.grey.shade100,
-                      child:
-                          Icon(Icons.image, color: Colors.grey.shade400),
-                    )
+                      child: Icon(Icons.image, color: Colors.grey.shade400))
                   : CachedNetworkImage(
                       imageUrl: item.image,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
-                          color: Colors.grey.shade100),
+                      placeholder: (_, __) =>
+                          Container(color: Colors.grey.shade100),
                       errorWidget: (_, __, ___) => Icon(
                           Icons.image_not_supported,
                           color: Colors.grey.shade400),
@@ -362,12 +354,10 @@ class _ItemRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                Text(item.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
                 if (item.brand.isNotEmpty)
                   Text(item.brand,
                       style: Theme.of(context).textTheme.bodyMedium),
@@ -378,14 +368,10 @@ class _ItemRow extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                '\$${item.price.toStringAsFixed(2)}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Qty: ${item.quantity}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text('\$${item.price.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text('Qty: ${item.quantity}',
+                  style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ],
@@ -400,17 +386,13 @@ class _ItemRow extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-
   const _SectionHeader(this.title);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
+      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
     );
   }
 }

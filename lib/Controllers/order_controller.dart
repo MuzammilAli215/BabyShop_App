@@ -119,4 +119,13 @@ class OrderController with ChangeNotifier {
     _lastOrder = null;
     notifyListeners();
   }
+
+  /// Returns a live Firestore stream for a single order by [orderId].
+  Stream<OrderModel> streamOrder(String orderId) {
+    return _firestore
+        .collection('orders')
+        .doc(orderId)
+        .snapshots()
+        .map((snap) => OrderModel.fromJson(snap.data() ?? {}));
+  }
 }

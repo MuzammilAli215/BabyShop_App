@@ -171,18 +171,83 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     final cart = context.read<CartController>();
     final wasInCart = cart.quantityOf(product.productId) > 0;
 
-    // Always SET the quantity so tapping "Update Cart" replaces, not stacks.
-    await cart.setQuantity(product, _quantity);
+    if (wasInCart) {
+      // Show confirmation sheet before updating
+      _showUpdateConfirmSheet(cart, product);
+      return;
+    }
 
+    await cart.setQuantity(product, _quantity);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          wasInCart
-              ? '${product.name} updated to x$_quantity in cart.'
-              : '${product.name} x$_quantity added to cart.',
-        ),
+        content: Text('${product.name} x$_quantity added to cart.'),
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showUpdateConfirmSheet(CartController cart, ProductModel product) {
+    final currentQty = cart.quantityOf(product.productId);
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Icon(Icons.shopping_cart,
+                size: 40, color: AppTheme.primaryColor),
+            const SizedBox(height: 12),
+            Text('Already in your cart',
+                style: Theme.of(ctx).textTheme.titleMedium),
+            const SizedBox(height: 6),
+            Text(
+              'You have $currentQty of this item in your cart.\n'
+              'Update to $_quantity?',
+              textAlign: TextAlign.center,
+              style: Theme.of(ctx).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      await cart.setQuantity(product, _quantity);
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                            '${product.name} updated to x$_quantity in cart.'),
+                        duration: const Duration(seconds: 2),
+                      ));
+                    },
+                    child: const Text('Update Cart'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

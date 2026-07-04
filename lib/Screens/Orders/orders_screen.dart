@@ -95,7 +95,7 @@ class _OrderCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => OrderTrackingScreen(order: order),
+            builder: (_) => OrderTrackingScreen(orderId: order.orderId),
           ),
         ),
         child: Padding(

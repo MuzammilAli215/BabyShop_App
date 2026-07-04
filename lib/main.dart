@@ -62,6 +62,7 @@ class MyApp extends StatelessWidget {
           '/checkout': (_) => const AddressScreen(),
           '/orders': (_) => const OrdersScreen(),
           '/profile': (_) => const ProfileScreen(),
+          '/cart': (_) => const MainNavigationScreen(),
         },
       ),
     );

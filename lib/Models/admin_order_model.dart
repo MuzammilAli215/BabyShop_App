@@ -34,7 +34,16 @@ class AdminOrderItem {
   }
 }
 
-enum OrderStatus { pending, processing, shipped, delivered, cancelled }
+// Must match OrderStatus in order_model.dart exactly so Firestore strings align
+enum OrderStatus {
+  pending,
+  confirmed,
+  packed,
+  shipped,
+  outForDelivery,
+  delivered,
+  cancelled,
+}
 
 class AdminOrderModel {
   final String orderId;
@@ -106,38 +115,23 @@ class AdminOrderModel {
   }
 
   static OrderStatus _parseOrderStatus(String? statusStr) {
-    switch (statusStr?.toLowerCase()) {
-      case 'pending':
-        return OrderStatus.pending;
-      case 'processing':
-        return OrderStatus.processing;
-      case 'shipped':
-        return OrderStatus.shipped;
-      case 'delivered':
-        return OrderStatus.delivered;
-      case 'cancelled':
-        return OrderStatus.cancelled;
-      default:
-        return OrderStatus.pending;
-    }
+    return OrderStatus.values.firstWhere(
+      (s) => s.name == statusStr,
+      orElse: () => OrderStatus.pending,
+    );
   }
 
-  static String _statusToString(OrderStatus status) {
-    return status.toString().split('.').last;
-  }
+  static String _statusToString(OrderStatus status) => status.name;
 
   String get statusDisplayString {
     switch (status) {
-      case OrderStatus.pending:
-        return 'Pending';
-      case OrderStatus.processing:
-        return 'Processing';
-      case OrderStatus.shipped:
-        return 'Shipped';
-      case OrderStatus.delivered:
-        return 'Delivered';
-      case OrderStatus.cancelled:
-        return 'Cancelled';
+      case OrderStatus.pending:       return 'Pending';
+      case OrderStatus.confirmed:     return 'Confirmed';
+      case OrderStatus.packed:        return 'Packed';
+      case OrderStatus.shipped:       return 'Shipped';
+      case OrderStatus.outForDelivery: return 'Out for Delivery';
+      case OrderStatus.delivered:     return 'Delivered';
+      case OrderStatus.cancelled:     return 'Cancelled';
     }
   }
 }

@@ -417,26 +417,28 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Update Order Status'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: OrderStatus.values.map((status) {
-            return RadioListTile<OrderStatus>(
-              title: Text(status.toString().split('.').last.toUpperCase()),
-              value: status,
-              groupValue: order.status,
-              onChanged: (value) {
-                if (value != null) {
-                  adminController.updateOrderStatus(order.orderId, value);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Order status updated successfully'),
-                    ),
-                  );
-                }
-              },
-            );
-          }).toList(),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: OrderStatus.values.map((status) {
+              return RadioListTile<OrderStatus>(
+                title: Text(_statusLabel(status)),
+                value: status,
+                groupValue: order.status,
+                onChanged: (value) {
+                  if (value != null) {
+                    adminController.updateOrderStatus(order.orderId, value);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Status updated to ${_statusLabel(value)}'),
+                      ),
+                    );
+                  }
+                },
+              );
+            }).toList(),
+          ),
         ),
         actions: [
           TextButton(
@@ -520,16 +522,25 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   Color _getStatusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending:
-        return Colors.orange;
-      case OrderStatus.processing:
-        return Colors.blue;
-      case OrderStatus.shipped:
-        return Colors.purple;
-      case OrderStatus.delivered:
-        return Colors.green;
-      case OrderStatus.cancelled:
-        return Colors.red;
+      case OrderStatus.pending:        return Colors.orange;
+      case OrderStatus.confirmed:      return Colors.blue.shade300;
+      case OrderStatus.packed:         return Colors.indigo;
+      case OrderStatus.shipped:        return Colors.purple;
+      case OrderStatus.outForDelivery: return Colors.deepOrange;
+      case OrderStatus.delivered:      return Colors.green;
+      case OrderStatus.cancelled:      return Colors.red;
+    }
+  }
+
+  String _statusLabel(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:        return 'Pending';
+      case OrderStatus.confirmed:      return 'Confirmed';
+      case OrderStatus.packed:         return 'Packed';
+      case OrderStatus.shipped:        return 'Shipped';
+      case OrderStatus.outForDelivery: return 'Out for Delivery';
+      case OrderStatus.delivered:      return 'Delivered';
+      case OrderStatus.cancelled:      return 'Cancelled';
     }
   }
 
