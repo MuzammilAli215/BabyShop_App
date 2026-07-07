@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../Controllers/cart_controller.dart';
 import '../../Models/cart_model.dart';
 import '../../Utils/app_theme.dart';
+import '../Checkout/address_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -119,11 +120,10 @@ class CartScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Checkout will be available in the next phase.',
-                      ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AddressScreen(),
                     ),
                   );
                 },

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../Controllers/admin_controller.dart';
 import '../../Models/admin_order_model.dart';
 
+
 class AdminOrdersScreen extends StatefulWidget {
   const AdminOrdersScreen({Key? key}) : super(key: key);
 
@@ -77,51 +78,61 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                   child: Row(
                     children: [
                       FilterChip(
-                        label: const Text('All'),
-                        selected: _selectedFilter == null,
-                        onSelected: (selected) {
+                        label: const Text('Confirmed'),
+                        selected: _selectedFilter == OrderStatus.confirmed,
+                        onSelected: (_) {
                           setState(() {
-                            _selectedFilter = null;
+                            _selectedFilter = OrderStatus.confirmed;
                           });
                         },
                       ),
-                      const SizedBox(width: 8),
+
                       FilterChip(
-                        label: const Text('Pending'),
-                        selected: _selectedFilter == OrderStatus.pending,
-                        onSelected: (selected) {
+                        label: const Text('Packed'),
+                        selected: _selectedFilter == OrderStatus.packed,
+                        onSelected: (_) {
                           setState(() {
-                            _selectedFilter = OrderStatus.pending;
+                            _selectedFilter = OrderStatus.packed;
                           });
                         },
                       ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('Processing'),
-                        selected: _selectedFilter == OrderStatus.processing,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = OrderStatus.processing;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 8),
+
                       FilterChip(
                         label: const Text('Shipped'),
                         selected: _selectedFilter == OrderStatus.shipped,
-                        onSelected: (selected) {
+                        onSelected: (_) {
                           setState(() {
                             _selectedFilter = OrderStatus.shipped;
                           });
                         },
                       ),
-                      const SizedBox(width: 8),
+
+                      FilterChip(
+                        label: const Text('Out for Delivery'),
+                        selected: _selectedFilter == OrderStatus.outForDelivery,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.outForDelivery;
+                          });
+                        },
+                      ),
+
                       FilterChip(
                         label: const Text('Delivered'),
                         selected: _selectedFilter == OrderStatus.delivered,
-                        onSelected: (selected) {
+                        onSelected: (_) {
                           setState(() {
                             _selectedFilter = OrderStatus.delivered;
+                          });
+                        },
+                      ),
+
+                      FilterChip(
+                        label: const Text('Cancelled'),
+                        selected: _selectedFilter == OrderStatus.cancelled,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.cancelled;
                           });
                         },
                       ),
@@ -417,26 +428,28 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Update Order Status'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: OrderStatus.values.map((status) {
-            return RadioListTile<OrderStatus>(
-              title: Text(status.toString().split('.').last.toUpperCase()),
-              value: status,
-              groupValue: order.status,
-              onChanged: (value) {
-                if (value != null) {
-                  adminController.updateOrderStatus(order.orderId, value);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Order status updated successfully'),
-                    ),
-                  );
-                }
-              },
-            );
-          }).toList(),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: OrderStatus.values.map((status) {
+              return RadioListTile<OrderStatus>(
+                title: Text(_statusLabel(status)),
+                value: status,
+                groupValue: order.status,
+                onChanged: (value) {
+                  if (value != null) {
+                    adminController.updateOrderStatus(order.orderId, value);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Status updated to ${_statusLabel(value)}'),
+                      ),
+                    );
+                  }
+                },
+              );
+            }).toList(),
+          ),
         ),
         actions: [
           TextButton(
@@ -522,14 +535,49 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
     switch (status) {
       case OrderStatus.pending:
         return Colors.orange;
-      case OrderStatus.processing:
+
+      case OrderStatus.confirmed:
         return Colors.blue;
+
+      case OrderStatus.packed:
+        return Colors.indigo;
+
       case OrderStatus.shipped:
         return Colors.purple;
+
+      case OrderStatus.outForDelivery:
+        return Colors.deepOrange;
+
       case OrderStatus.delivered:
         return Colors.green;
+
       case OrderStatus.cancelled:
         return Colors.red;
+    }
+  }
+
+  String _statusLabel(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return "Pending";
+
+      case OrderStatus.confirmed:
+        return "Confirmed";
+
+      case OrderStatus.packed:
+        return "Packed";
+
+      case OrderStatus.shipped:
+        return "Shipped";
+
+      case OrderStatus.outForDelivery:
+        return "Out for Delivery";
+
+      case OrderStatus.delivered:
+        return "Delivered";
+
+      case OrderStatus.cancelled:
+        return "Cancelled";
     }
   }
 

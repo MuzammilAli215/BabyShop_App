@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -5,6 +6,7 @@ import '../Models/product_model.dart';
 
 class ProductController with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _productsSubscription;
 
   final List<String> categories = const [
     'All',
@@ -45,25 +47,32 @@ class ProductController with ChangeNotifier {
   }
 
   Future<void> loadProducts() async {
-    try {
+    _productsSubscription ??= _firestore
+        .collection('products')
+        .where('isActive', isEqualTo: true)
+        .snapshots(includeMetadataChanges: true)
+        .listen(
+          (snapshot) {
+        _products = snapshot.docs
+            .map((doc) => ProductModel.fromJson(doc.data(), doc.id))
+            .toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
+        _isLoading = false;
+        _error = null;
+        notifyListeners();
+      },
+      onError: (Object e) {
+        _error = 'Error loading products: ${e.toString()}';
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
+
+    if (_products.isEmpty) {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      final snapshot = await _firestore
-          .collection('products')
-          .where('isActive', isEqualTo: true)
-          .get();
-
-      _products = snapshot.docs
-          .map((doc) => ProductModel.fromJson(doc.data(), doc.id))
-          .toList();
-      _products.sort((a, b) => a.name.compareTo(b.name));
-    } catch (e) {
-      _error = 'Error loading products: ${e.toString()}';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
   }
 
@@ -89,5 +98,10 @@ class ProductController with ChangeNotifier {
     _selectedCategory = 'All';
     _searchQuery = '';
     notifyListeners();
+  }
+  @override
+  void dispose() {
+    _productsSubscription?.cancel();
+    super.dispose();
   }
 }

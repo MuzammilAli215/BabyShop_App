@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../Controllers/cart_controller.dart';
 import '../../Utils/app_theme.dart';
 import '../Cart/cart_screen.dart';
+import '../Orders/orders_screen.dart';
+import '../Profile/profile_screen.dart';
 import 'user_home_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -20,16 +22,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   static const List<Widget> _pages = [
     UserHomeScreen(),
     CartScreen(),
-    _ComingSoonPage(
-      icon: Icons.receipt_long,
-      title: 'Orders',
-      message: 'Your order history will appear here soon.',
-    ),
-    _ComingSoonPage(
-      icon: Icons.person,
-      title: 'Profile',
-      message: 'Manage your profile, addresses and more soon.',
-    ),
+    OrdersScreen(),
+    ProfileScreen(),
   ];
 
   @override
@@ -84,9 +78,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   Widget _cartIcon(CartController cart, IconData icon) {
     return badges.Badge(
-      showBadge: cart.itemCount > 0,
+      showBadge: cart.distinctItemCount > 0,
       badgeContent: Text(
-        '${cart.itemCount}',
+        '${cart.distinctItemCount}',
         style: const TextStyle(color: Colors.white, fontSize: 10),
       ),
       badgeStyle: const badges.BadgeStyle(badgeColor: AppTheme.errorColor),

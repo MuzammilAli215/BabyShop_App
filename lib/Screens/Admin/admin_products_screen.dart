@@ -35,6 +35,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (adminController.error != null && adminController.products.isEmpty) {
+            return _buildErrorState(adminController.error!, () {
+              adminController.clearError();
+              adminController.loadProducts();
+            });
+          }
+
           if (adminController.products.isEmpty) {
             return Center(
               child: Column(
@@ -473,6 +480,40 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
       ),
       maxLines: maxLines,
       keyboardType: keyboardType,
+    );
+  }
+  Widget _buildErrorState(String message, VoidCallback onRetry) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cloud_off, size: 64, color: Colors.red.shade300),
+            const SizedBox(height: 16),
+            Text(
+              'Unable to load data',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey.shade800,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try again'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

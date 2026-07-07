@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class AuthController with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -11,11 +11,20 @@ class AuthController with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  // Profile state
+  String _userName = '';
+  String _userPhone = '';
+  List<String> _addresses = [];
+
   User? get user => _user;
   String? get userRole => _userRole;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isAdmin => _userRole == 'admin';
+
+  String get userName => _userName;
+  String get userPhone => _userPhone;
+  List<String> get addresses => List.unmodifiable(_addresses);
 
   // Check if user is already logged in
   void checkAuthStatus() {
@@ -26,17 +35,131 @@ class AuthController with ChangeNotifier {
     notifyListeners();
   }
 
-  // Load user role from Firestore
+  // Load user role and profile from Firestore
   Future<void> _loadUserRole() async {
     if (_user == null) return;
 
     try {
       final doc = await _firestore.collection('users').doc(_user!.uid).get();
-      _userRole = doc.data()?['role'] ?? 'user';
+      final data = doc.data() ?? {};
+      _userRole = data['role'] ?? 'user';
+      _userName = data['name'] ?? '';
+      _userPhone = data['phone'] ?? '';
+      _addresses = List<String>.from(data['addresses'] ?? []);
       notifyListeners();
     } catch (e) {
-      _userRole = 'user'; // Default to user if error
+      _userRole = 'user';
       notifyListeners();
+    }
+  }
+
+  // ── Profile ──────────────────────────────
+
+  /// Fetches the latest profile data from Firestore.
+  Future<void> fetchUserProfile() async {
+    if (_user == null) return;
+    try {
+      final doc =
+      await _firestore.collection('users').doc(_user!.uid).get();
+      final data = doc.data() ?? {};
+      _userName = data['name'] ?? '';
+      _userPhone = data['phone'] ?? '';
+      _addresses = List<String>.from(data['addresses'] ?? []);
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  /// Updates name and phone in Firestore.
+  Future<bool> updateProfile(String name, String phone) async {
+    if (_user == null) return false;
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _firestore.collection('users').doc(_user!.uid).update({
+        'name': name.trim(),
+        'phone': phone.trim(),
+      });
+      _userName = name.trim();
+      _userPhone = phone.trim();
+      return true;
+    } catch (e) {
+      _error = 'Failed to update profile.';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Re-authenticates then changes the password.
+  Future<bool> updatePassword(
+      String currentPassword, String newPassword) async {
+    if (_user == null || _user!.email == null) return false;
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final cred = EmailAuthProvider.credential(
+        email: _user!.email!,
+        password: currentPassword,
+      );
+      await _user!.reauthenticateWithCredential(cred);
+      await _user!.updatePassword(newPassword);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _error = _getErrorMessage(e.code);
+      return false;
+    } catch (e) {
+      _error = 'Failed to change password.';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ── Addresses ────────────────────────────
+
+  /// Adds a new address and persists to Firestore.
+  Future<bool> addAddress(String address) async {
+    if (_user == null) return false;
+    final trimmed = address.trim();
+    if (trimmed.isEmpty) return false;
+
+    try {
+      final updated = [..._addresses, trimmed];
+      await _firestore.collection('users').doc(_user!.uid).update({
+        'addresses': updated,
+      });
+      _addresses = updated;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Failed to save address.';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Removes the address at [index] and persists to Firestore.
+  Future<bool> deleteAddress(int index) async {
+    if (_user == null || index < 0 || index >= _addresses.length) return false;
+
+    try {
+      final updated = [..._addresses]..removeAt(index);
+      await _firestore.collection('users').doc(_user!.uid).update({
+        'addresses': updated,
+      });
+      _addresses = updated;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Failed to delete address.';
+      notifyListeners();
+      return false;
     }
   }
 
@@ -79,7 +202,11 @@ class AuthController with ChangeNotifier {
 
   // Register method for users
   Future<bool> register(
-      String name, String email, String password, [String phone = '']) async {
+      String name,
+      String email,
+      String password, [
+        String phone = '',
+      ]) async {
     try {
       _isLoading = true;
       _error = null;
@@ -110,6 +237,8 @@ class AuthController with ChangeNotifier {
         });
 
         _userRole = 'user';
+        _userName = name;
+        _userPhone = phone;
       }
 
       _isLoading = false;
@@ -136,12 +265,16 @@ class AuthController with ChangeNotifier {
       _user = null;
       _userRole = null;
       _error = null;
+      _userName = '';
+      _userPhone = '';
+      _addresses = [];
       notifyListeners();
     } catch (e) {
       _error = 'Error logging out';
       notifyListeners();
     }
   }
+
   Future<String> logoutUser() async {
     await logout();
     return error ?? 'Logged out successfully';

@@ -32,16 +32,26 @@ class ProductModel {
       productId: productId,
       name: json['name'] ?? 'N/A',
       description: json['description'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
+      price: _toDouble(json['price']),
       brand: json['brand'] ?? 'N/A',
       category: json['category'] ?? 'N/A',
       image: json['image'] ?? '',
-      stock: json['stock'] ?? 0,
-      rating: (json['rating'] ?? json['avgRating'] ?? 0).toDouble(),
+      stock: _toInt(json['stock']),
+      rating: _toDouble(json['rating'] ?? json['avgRating']),
       isActive: json['isActive'] ?? true,
-      totalReviews: json['totalReviews'] ?? 0,
-      avgRating: (json['avgRating'] ?? json['rating'] ?? 0).toDouble(),
+      totalReviews: _toInt(json['totalReviews']),
+      avgRating: _toDouble(json['avgRating'] ?? json['rating']),
     );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 
   bool get isInStock => stock > 0;

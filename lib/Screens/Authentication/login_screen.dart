@@ -3,6 +3,7 @@ import 'package:flutter_eproject/Controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 import 'signup_screen.dart';
 import 'package:flutter_eproject/Controllers/password_controller.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -156,33 +157,14 @@ class _LoginScreenState extends State<LoginScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () async {
-                  if (emailController.text.trim().isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Please enter your email"),
-                      ),
-                    );
-                    return;
-                  }
-
-                  final result = await authController.resetPassword(
-                    emailController.text.trim(),
-                  );
-
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        result
-                            ? 'Password reset email sent'
-                            : authController.error ?? 'Password reset failed',
-                      ),
-                    ),
-                  );
-                },
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ForgotPasswordScreen(),
+                  ),
+                ),
                 child: const Text(
-                  "Forgot Password",
+                  "Forgot Password?",
                   style: TextStyle(
                     color: Colors.blue,
                     fontSize: 15,
