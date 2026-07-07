@@ -99,10 +99,18 @@ class OrderController with ChangeNotifier {
         createdAt: DateTime.now(),
       );
 
-      await _firestore
-          .collection('orders')
-          .doc(orderId)
-          .set(order.toJson());
+      // Persist customer details alongside the order so the admin order list
+      // and details view can display name / email / phone / address. These
+      // are the exact keys AdminOrderModel reads.
+      final data = order.toJson();
+      data['userName'] = address.fullName;
+      data['userEmail'] = _auth.currentUser?.email ?? '';
+      data['userPhone'] = address.phone;
+      data['shippingAddress'] =
+          '${address.addressLine}, ${address.city} ${address.postalCode}';
+      data['stockDeducted'] = false;
+
+      await _firestore.collection('orders').doc(orderId).set(data);
 
       _lastOrder = order;
       return order;

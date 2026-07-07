@@ -189,6 +189,8 @@ class AdminController with ChangeNotifier {
 
       if (newStatus == OrderStatus.delivered) {
         updateData['deliveredAt'] = DateTime.now().toIso8601String();
+        await _reduceStockForOrder(orderId);
+        updateData['stockDeducted'] = true;
       }
 
       await _firestore.collection('orders').doc(orderId).update(updateData);
@@ -197,6 +199,37 @@ class AdminController with ChangeNotifier {
     } catch (e) {
       _error = 'Error updating order: ${e.toString()}';
       notifyListeners();
+    }
+  }
+
+  /// Decrements product stock for every item in [orderId] once the order is
+  /// delivered. Guarded by a `stockDeducted` flag so re-marking an order as
+  /// delivered never double-counts.
+  Future<void> _reduceStockForOrder(String orderId) async {
+    final orderDoc = await _firestore.collection('orders').doc(orderId).get();
+    if (!orderDoc.exists) return;
+
+    final orderData = orderDoc.data() ?? {};
+    if (orderData['stockDeducted'] == true) return;
+
+    final items = (orderData['items'] as List<dynamic>?) ?? [];
+    for (final item in items) {
+      if (item is! Map) continue;
+      final productId = item['productId'] as String?;
+      final quantity = (item['quantity'] as num?)?.toInt() ?? 0;
+      if (productId == null || productId.isEmpty || quantity <= 0) continue;
+
+      final productRef = _firestore.collection('products').doc(productId);
+      await _firestore.runTransaction((txn) async {
+        final snap = await txn.get(productRef);
+        if (!snap.exists) return;
+        final currentStock = (snap.data()?['stock'] as num?)?.toInt() ?? 0;
+        final newStock = (currentStock - quantity).clamp(0, 999999);
+        txn.update(productRef, {
+          'stock': newStock,
+          'updatedAt': DateTime.now().toIso8601String(),
+        });
+      });
     }
   }
 

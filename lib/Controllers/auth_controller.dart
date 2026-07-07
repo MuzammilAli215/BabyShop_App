@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class AuthController with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   User? _user;
   String? _userRole; // 'user' or 'admin'
@@ -14,6 +18,7 @@ class AuthController with ChangeNotifier {
   // Profile state
   String _userName = '';
   String _userPhone = '';
+  String _photoUrl = '';
   List<String> _addresses = [];
 
   User? get user => _user;
@@ -24,6 +29,7 @@ class AuthController with ChangeNotifier {
 
   String get userName => _userName;
   String get userPhone => _userPhone;
+  String get photoUrl => _photoUrl;
   List<String> get addresses => List.unmodifiable(_addresses);
 
   // Check if user is already logged in
@@ -45,11 +51,23 @@ class AuthController with ChangeNotifier {
       _userRole = data['role'] ?? 'user';
       _userName = data['name'] ?? '';
       _userPhone = data['phone'] ?? '';
+      _photoUrl = data['photoUrl'] ?? '';
       _addresses = List<String>.from(data['addresses'] ?? []);
       notifyListeners();
     } catch (e) {
       _userRole = 'user';
       notifyListeners();
+    }
+  }
+
+  /// Ensures the current user's role/profile is loaded. Used on app startup
+  /// (splash) so routing waits for the real role instead of defaulting to the
+  /// user home while the role is still null.
+  Future<void> ensureUserLoaded() async {
+    _user = _auth.currentUser;
+    if (_user == null) return;
+    if (_userRole == null) {
+      await _loadUserRole();
     }
   }
 
@@ -64,9 +82,37 @@ class AuthController with ChangeNotifier {
       final data = doc.data() ?? {};
       _userName = data['name'] ?? '';
       _userPhone = data['phone'] ?? '';
+      _photoUrl = data['photoUrl'] ?? '';
       _addresses = List<String>.from(data['addresses'] ?? []);
       notifyListeners();
     } catch (_) {}
+  }
+
+  /// Uploads [imageFile] to Firebase Storage and stores its URL on the user
+  /// document so it can be shown as the profile picture.
+  Future<bool> updateProfilePicture(File imageFile) async {
+    if (_user == null) return false;
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final ref = _storage.ref().child('profile_pictures/${_user!.uid}.jpg');
+      await ref.putFile(imageFile);
+      final url = await ref.getDownloadURL();
+
+      await _firestore.collection('users').doc(_user!.uid).update({
+        'photoUrl': url,
+      });
+      _photoUrl = url;
+      return true;
+    } catch (e) {
+      _error = 'Failed to upload profile picture.';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   /// Updates name and phone in Firestore.
@@ -181,6 +227,19 @@ class AuthController with ChangeNotifier {
       // Load user role from Firestore
       if (_user != null) {
         await _loadUserRole();
+
+        // Block disabled accounts: sign them straight back out so they can
+        // never reach the app even with valid credentials.
+        final disabled = await isUserDisabled();
+        if (disabled) {
+          await _auth.signOut();
+          _user = null;
+          _userRole = null;
+          _error = 'Your account has been disabled. Please contact support.';
+          _isLoading = false;
+          notifyListeners();
+          return false;
+        }
       }
 
       _isLoading = false;
@@ -267,6 +326,7 @@ class AuthController with ChangeNotifier {
       _error = null;
       _userName = '';
       _userPhone = '';
+      _photoUrl = '';
       _addresses = [];
       notifyListeners();
     } catch (e) {

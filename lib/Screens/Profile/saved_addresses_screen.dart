@@ -41,7 +41,9 @@ class SavedAddressesScreen extends StatelessWidget {
   }
 
   Future<void> _showAddDialog(BuildContext context) async {
-    final ctrl = TextEditingController();
+    final streetCtrl = TextEditingController();
+    final cityCtrl = TextEditingController();
+    final postalCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
     final confirmed = await showDialog<bool>(
@@ -50,17 +52,43 @@ class SavedAddressesScreen extends StatelessWidget {
         title: const Text('Add Address'),
         content: Form(
           key: formKey,
-          child: TextFormField(
-            controller: ctrl,
-            autofocus: true,
-            maxLines: 3,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Full address',
-              hintText: '123 Main St, City, Postal Code',
-            ),
-            validator: (v) =>
-                (v == null || v.trim().isEmpty) ? 'Address cannot be empty' : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: streetCtrl,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Street / Apartment',
+                  prefixIcon: Icon(Icons.home_outlined),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: cityCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'City',
+                  prefixIcon: Icon(Icons.location_city_outlined),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: postalCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Postal Code',
+                  prefixIcon: Icon(Icons.markunread_mailbox_outlined),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+              ),
+            ],
           ),
         ),
         actions: [
@@ -81,8 +109,13 @@ class SavedAddressesScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      // Store in the exact "Street, City, PostalCode" format that the checkout
+      // delivery screen parses, so saved addresses and delivery addresses stay
+      // consistent instead of conflicting.
+      final formatted =
+          '${streetCtrl.text.trim()}, ${cityCtrl.text.trim()}, ${postalCtrl.text.trim()}';
       final auth = context.read<AuthController>();
-      final success = await auth.addAddress(ctrl.text);
+      final success = await auth.addAddress(formatted);
       if (!success && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

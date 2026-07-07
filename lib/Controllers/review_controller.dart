@@ -23,15 +23,18 @@ class ReviewController with ChangeNotifier {
       _error = null;
       notifyListeners();
 
+      // NOTE: combining .where() + .orderBy() on different fields requires a
+      // Firestore composite index. Sort in memory to avoid that requirement
+      // (the missing index was causing "Error loading reviews").
       final snapshot = await _firestore
           .collection('reviews')
           .where('productId', isEqualTo: productId)
-          .orderBy('createdAt', descending: true)
           .get();
 
       _reviews = snapshot.docs
           .map((doc) => ReviewModel.fromJson(doc.data(), doc.id))
-          .toList();
+          .toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       _error = null;
     } catch (e) {
       _error = 'Error loading reviews: ${e.toString()}';

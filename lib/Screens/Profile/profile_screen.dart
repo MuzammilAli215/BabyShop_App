@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../Controllers/auth_controller.dart';
@@ -15,11 +18,38 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool _uploadingPhoto = false;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(
       () => context.read<AuthController>().fetchUserProfile(),
+    );
+  }
+
+  Future<void> _pickProfilePicture() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      imageQuality: 80,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploadingPhoto = true);
+    final auth = context.read<AuthController>();
+    final ok = await auth.updateProfilePicture(File(picked.path));
+    if (!mounted) return;
+    setState(() => _uploadingPhoto = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? 'Profile picture updated.'
+            : (auth.error ?? 'Failed to update picture.')),
+        backgroundColor: ok ? AppTheme.successColor : AppTheme.errorColor,
+      ),
     );
   }
 
@@ -41,16 +71,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: AppTheme.primaryColor,
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      child: Text(
-                        initials,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    GestureDetector(
+                      onTap: _uploadingPhoto ? null : _pickProfilePicture,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor:
+                                Colors.white.withValues(alpha: 0.2),
+                            backgroundImage: auth.photoUrl.isNotEmpty
+                                ? NetworkImage(auth.photoUrl)
+                                : null,
+                            child: _uploadingPhoto
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : (auth.photoUrl.isEmpty
+                                    ? Text(
+                                        initials,
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : null),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppTheme.primaryColor,
+                                  width: 1,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                size: 16,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 12),
