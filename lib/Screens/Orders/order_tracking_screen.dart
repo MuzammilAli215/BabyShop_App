@@ -50,7 +50,7 @@ class OrderTrackingScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // ── Tracking timeline ──
-                if (!isCancelled) ...[]
+                if (!isCancelled) ...[
                 _SectionHeader('Tracking'),
                 Card(
                   child: Padding(

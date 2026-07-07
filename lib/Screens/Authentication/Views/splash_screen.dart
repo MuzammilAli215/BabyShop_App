@@ -48,9 +48,11 @@ class _SplashScreenState extends State<SplashScreen>
 
       final auth = context.read<AuthController>();
 
-      // Wait for role to load if user is already signed in
-      if (auth.user != null && auth.userRole == null) {
-        await Future.delayed(const Duration(milliseconds: 500));
+      // Wait for the role/profile to actually load before routing, otherwise
+      // an admin reopening the app is sent to the user home while the role is
+      // still null.
+      if (auth.user != null) {
+        await auth.ensureUserLoaded();
       }
 
       if (!mounted) return;
