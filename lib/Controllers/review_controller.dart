@@ -32,8 +32,10 @@ class ReviewController with ChangeNotifier {
       _reviews = snapshot.docs
           .map((doc) => ReviewModel.fromJson(doc.data(), doc.id))
           .toList();
+      _error = null;
     } catch (e) {
       _error = 'Error loading reviews: ${e.toString()}';
+      _reviews = [];
     } finally {
       _isLoading = false;
       notifyListeners();

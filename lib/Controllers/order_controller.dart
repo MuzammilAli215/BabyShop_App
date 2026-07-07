@@ -78,14 +78,14 @@ class OrderController with ChangeNotifier {
       final items = cartItems
           .map(
             (c) => OrderItem(
-              productId: c.productId,
-              name: c.name,
-              brand: c.brand,
-              image: c.image,
-              price: c.price,
-              quantity: c.quantity,
-            ),
-          )
+          productId: c.productId,
+          name: c.name,
+          brand: c.brand,
+          image: c.image,
+          price: c.price,
+          quantity: c.quantity,
+        ),
+      )
           .toList();
 
       final order = OrderModel(
@@ -112,6 +112,55 @@ class OrderController with ChangeNotifier {
     } finally {
       _isPlacing = false;
       notifyListeners();
+    }
+  }
+
+  /// Updates order status and reduces product stock when order is delivered
+  Future<bool> updateOrderStatus(String orderId, OrderStatus newStatus) async {
+    try {
+      final orderDoc =
+      await _firestore.collection('orders').doc(orderId).get();
+      if (!orderDoc.exists) return false;
+
+      final orderData = orderDoc.data() ?? {};
+      final items = (orderData['items'] as List<dynamic>?) ?? [];
+
+      // Reduce stock for each item when order is delivered
+      if (newStatus == OrderStatus.delivered) {
+        for (var item in items) {
+          final productId = item['productId'] as String?;
+          final quantity = item['quantity'] as int? ?? 0;
+
+          if (productId != null && quantity > 0) {
+            // Get current stock
+            final productDoc = await _firestore
+                .collection('products')
+                .doc(productId)
+                .get();
+            if (productDoc.exists) {
+              final currentStock = (productDoc.data()?['stock'] as int?) ?? 0;
+              final newStock = (currentStock - quantity).clamp(0, 999999);
+
+              // Update product stock
+              await _firestore
+                  .collection('products')
+                  .doc(productId)
+                  .update({'stock': newStock});
+            }
+          }
+        }
+      }
+
+      // Update order status
+      await _firestore.collection('orders').doc(orderId).update({
+        'status': newStatus.name,
+        'updatedAt': DateTime.now().toIso8601String(),
+      });
+
+      return true;
+    } catch (e) {
+      print('Error updating order status: $e');
+      return false;
     }
   }
 

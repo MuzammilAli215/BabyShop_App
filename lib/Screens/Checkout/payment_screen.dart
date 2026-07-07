@@ -69,7 +69,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         MaterialPageRoute(
           builder: (_) => OrderConfirmationScreen(order: order),
         ),
-        (route) => route.settings.name == '/user-home' || route.isFirst,
+            (route) => route.settings.name == '/user-home' || route.isFirst,
       );
     } catch (e) {
       if (!mounted) return;
@@ -126,7 +126,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     child: Column(
                       children: [
                         ...cart.items.map(
-                          (item) => Padding(
+                              (item) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Row(
                               children: [
@@ -192,17 +192,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
 
                   // ── Card form (shown only if Card selected) ──
-                  if (_method == 'Card') ...[
-                    const SizedBox(height: 16),
-                    _CardForm(
-                      formKey: _cardFormKey,
-                      cardNumberCtrl: _cardNumberCtrl,
-                      cardNameCtrl: _cardNameCtrl,
-                      expiryCtrl: _expiryCtrl,
-                      cvvCtrl: _cvvCtrl,
-                    ),
-                  ],
-                  const SizedBox(height: 24),
+                  if (_method == 'Card') ...[]
+                  const SizedBox(height: 16),
+                  _CardForm(
+                    formKey: _cardFormKey,
+                    cardNumberCtrl: _cardNumberCtrl,
+                    cardNameCtrl: _cardNameCtrl,
+                    expiryCtrl: _expiryCtrl,
+                    cvvCtrl: _cvvCtrl,
+                  ),
+                ],
+                const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -351,19 +351,6 @@ class _CardForm extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.lock_outline,
-                      size: 16, color: AppTheme.successColor),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Demo card — no real transaction',
-                    style: TextStyle(
-                        fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
               TextFormField(
                 controller: cardNumberCtrl,
                 keyboardType: TextInputType.number,
@@ -395,7 +382,7 @@ class _CardForm extends StatelessWidget {
                   hintText: 'AS ON CARD',
                 ),
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               Row(
@@ -418,6 +405,20 @@ class _CardForm extends StatelessWidget {
                         if (v == null || v.length < 5) {
                           return 'Invalid expiry';
                         }
+                        // Validate that expiry is in future
+                        try {
+                          final parts = v.split('/');
+                          final month = int.parse(parts[0]);
+                          final year = int.parse('20${parts[1]}');
+                          final now = DateTime.now();
+                          final expiryDate =
+                          DateTime(year, month + 1, 0); // Last day of month
+                          if (expiryDate.isBefore(now)) {
+                            return 'Card has expired';
+                          }
+                        } catch (e) {
+                          return 'Invalid date format';
+                        }
                         return null;
                       },
                     ),
@@ -427,7 +428,9 @@ class _CardForm extends StatelessWidget {
                     child: TextFormField(
                       controller: cvvCtrl,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                       maxLength: 3,
                       obscureText: true,
                       decoration: const InputDecoration(

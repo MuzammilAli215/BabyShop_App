@@ -53,14 +53,14 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // ── Profile ──────────────────────────────────
+  // ── Profile ──────────────────────────────
 
   /// Fetches the latest profile data from Firestore.
   Future<void> fetchUserProfile() async {
     if (_user == null) return;
     try {
       final doc =
-          await _firestore.collection('users').doc(_user!.uid).get();
+      await _firestore.collection('users').doc(_user!.uid).get();
       final data = doc.data() ?? {};
       _userName = data['name'] ?? '';
       _userPhone = data['phone'] ?? '';
@@ -121,7 +121,7 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // ── Addresses ────────────────────────────────
+  // ── Addresses ────────────────────────────
 
   /// Adds a new address and persists to Firestore.
   Future<bool> addAddress(String address) async {
@@ -202,7 +202,11 @@ class AuthController with ChangeNotifier {
 
   // Register method for users
   Future<bool> register(
-      String name, String email, String password, [String phone = '']) async {
+      String name,
+      String email,
+      String password, [
+        String phone = '',
+      ]) async {
     try {
       _isLoading = true;
       _error = null;
@@ -233,6 +237,8 @@ class AuthController with ChangeNotifier {
         });
 
         _userRole = 'user';
+        _userName = name;
+        _userPhone = phone;
       }
 
       _isLoading = false;
@@ -259,12 +265,16 @@ class AuthController with ChangeNotifier {
       _user = null;
       _userRole = null;
       _error = null;
+      _userName = '';
+      _userPhone = '';
+      _addresses = [];
       notifyListeners();
     } catch (e) {
       _error = 'Error logging out';
       notifyListeners();
     }
   }
+
   Future<String> logoutUser() async {
     await logout();
     return error ?? 'Logged out successfully';

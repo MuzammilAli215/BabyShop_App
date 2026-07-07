@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_eproject/Screens/Authentication/login_screen.dart';
-import 'package:flutter_eproject/Controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
+import '../../../Controllers/auth_controller.dart';
+import '../login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,7 +13,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -56,6 +55,19 @@ class _SplashScreenState extends State<SplashScreen>
 
       if (!mounted) return;
 
+      // Check if user is disabled
+      if (auth.user != null) {
+        final isDisabled = await auth.isUserDisabled();
+        if (!mounted) return;
+
+        if (isDisabled) {
+          // User is disabled, show login screen
+          Navigator.pushReplacementNamed(context, '/login');
+          return;
+        }
+      }
+
+      // Route based on login status and role
       if (auth.user == null) {
         Navigator.pushReplacementNamed(context, '/login');
       } else if (auth.isAdmin) {
@@ -74,13 +86,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: SafeArea(
         child: Container(
           width: double.infinity,
           height: double.infinity,
-
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -88,14 +98,11 @@ class _SplashScreenState extends State<SplashScreen>
               colors: [
                 Colors.white,
                 Color(0xff64B5F6),
-
               ],
             ),
           ),
-
           child: Stack(
             children: [
-
               Center(
                 child: FadeTransition(
                   opacity: _fadeAnimation,
@@ -104,17 +111,13 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-
                         Image.asset(
                           "assets/logos/Imagelogo.png",
                           width: 150,
                           height: 150,
                           fit: BoxFit.contain,
                         ),
-
-
                         const SizedBox(height: 8),
-
                         const Text(
                           "All Your Baby Needs in One Place",
                           textAlign: TextAlign.center,
@@ -123,15 +126,11 @@ class _SplashScreenState extends State<SplashScreen>
                             color: Colors.blue,
                           ),
                         ),
-
                         const SizedBox(height: 35),
-
                         const CircularProgressIndicator(
                           color: Colors.white,
                         ),
-
                         const SizedBox(height: 15),
-
                         const Text(
                           "Loading...",
                           style: TextStyle(

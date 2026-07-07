@@ -7,6 +7,7 @@ import 'Controllers/cart_controller.dart';
 import 'Controllers/order_controller.dart';
 import 'Controllers/password_controller.dart';
 import 'Controllers/product_controller.dart';
+import 'Controllers/review_controller.dart';
 import 'Screens/Admin/admin_dashboard_screen.dart';
 import 'Screens/Admin/admin_orders_screen.dart';
 import 'Screens/Admin/admin_products_screen.dart';
@@ -19,6 +20,7 @@ import 'Screens/Checkout/address_screen.dart';
 import 'Screens/Home/main_navigation_screen.dart';
 import 'Screens/Orders/orders_screen.dart';
 import 'Screens/Profile/profile_screen.dart';
+import 'Screens/Support/support_screen.dart';
 import 'Utils/app_theme.dart';
 import 'firebase_options.dart';
 
@@ -46,9 +48,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductController()),
         ChangeNotifierProvider(create: (_) => CartController()),
         ChangeNotifierProvider(create: (_) => OrderController()),
+        ChangeNotifierProvider(create: (_) => ReviewController()),
       ],
       child: MaterialApp(
-        title: 'BabyShop',
+        title: 'BabyShopHub',
         theme: AppTheme.lightTheme,
         home: const SplashScreen(),
         debugShowCheckedModeBanner: false,
@@ -63,6 +66,7 @@ class MyApp extends StatelessWidget {
           '/checkout': (_) => const AddressScreen(),
           '/orders': (_) => const OrdersScreen(),
           '/profile': (_) => const ProfileScreen(),
+          '/support': (_) => const SupportScreen(),
           '/cart': (_) => const MainNavigationScreen(),
           '/forgot-password': (_) => const ForgotPasswordScreen(),
         },

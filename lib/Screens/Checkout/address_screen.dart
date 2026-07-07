@@ -69,7 +69,8 @@ class _AddressScreenState extends State<AddressScreen> {
       _postalCtrl.text = parts[2];
     } else if (parts.length == 2) {
       // Try splitting the last part into city + postal
-      final lastParts = parts[1].split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
+      final lastParts =
+      parts[1].split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
       if (lastParts.length > 1 &&
           RegExp(r'^\d').hasMatch(lastParts.last)) {
         _postalCtrl.text = lastParts.last;
@@ -138,34 +139,65 @@ class _AddressScreenState extends State<AddressScreen> {
                   return Form(
                     key: _formKey,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Where should we deliver?',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Select a saved address or enter a new one.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 20),
-
-                        // ── Saved addresses ──────────────────────
-                        if (auth.addresses.isNotEmpty) ...[
-                          _SectionHeader('Saved Addresses'),
-                          const SizedBox(height: 10),
-                          ...auth.addresses.asMap().entries.map((entry) {
-                            final idx = entry.key;
-                            final addr = entry.value;
-                            final selected = _selectedSavedIndex == idx;
-                            return _SavedAddressTile(
-                              address: addr,
-                              selected: selected,
-                              onTap: () => _applySavedAddress(addr, idx),
-                            );
-                          }),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Where should we deliver?',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Select a saved address or enter a new one.',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 20),
+                          // ── Recipient info (always shown first) ─────────
+                          _SectionHeader('Recipient Info'),
                           const SizedBox(height: 12),
+                          _field(
+                            controller: _fullNameCtrl,
+                            label: 'Full Name',
+                            icon: Icons.person_outline,
+                            validator: (v) =>
+                            (v == null || v.trim().isEmpty)
+                                ? 'Required'
+                                : null,
+                          ),
+                          const SizedBox(height: 14),
+                          _field(
+                            controller: _phoneCtrl,
+                            label: 'Phone Number',
+                            icon: Icons.phone_outlined,
+                            keyboardType: TextInputType.phone,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty)
+                                return 'Required';
+                              if (v.trim().length < 7) {
+                                return 'Enter a valid number';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+// ── Saved addresses ──────────────────────
+if (auth.addresses.isNotEmpty) ...[
+_SectionHeader('Saved Addresses'),
+const SizedBox(height: 10),
+
+...auth.addresses.asMap().entries.map((entry) {
+final idx = entry.key;
+final addr = entry.value;
+final selected = _selectedSavedIndex == idx;
+
+return _SavedAddressTile(
+address: addr,
+selected: selected,
+onTap: () => _applySavedAddress(addr, idx),
+);
+}),
+
+const SizedBox(height: 12),
+]
 
                           // "Add new address" row
                           InkWell(
@@ -208,92 +240,54 @@ class _AddressScreenState extends State<AddressScreen> {
                           const SizedBox(height: 20),
                         ],
 
-                        // ── Recipient info (always shown) ─────────
-                        _SectionHeader('Recipient Info'),
-                        const SizedBox(height: 12),
-                        _field(
-                          controller: _fullNameCtrl,
-                          label: 'Full Name',
-                          icon: Icons.person_outline,
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Required'
-                              : null,
-                        ),
-                        const SizedBox(height: 14),
-                        _field(
-                          controller: _phoneCtrl,
-                          label: 'Phone Number',
-                          icon: Icons.phone_outlined,
-                          keyboardType: TextInputType.phone,
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) return 'Required';
-                            if (v.trim().length < 7) {
-                              return 'Enter a valid number';
-                            }
-                            return null;
-                          },
-                        ),
+                        ── Address fields (show when needed) ─────
+if (_showNewAddressForm || _selectedSavedIndex >= 0) ...[
+_SectionHeader(
+_showNewAddressForm
+? 'New Address'
+: 'Delivery Address',
+),
 
-                        // ── Address fields (show when needed) ─────
-                        if (_showNewAddressForm ||
-                            _selectedSavedIndex >= 0) ...[
-                          const SizedBox(height: 20),
-                          _SectionHeader(
-                            _showNewAddressForm
-                                ? 'New Address'
-                                : 'Delivery Address',
-                          ),
-                          const SizedBox(height: 12),
-                          _field(
-                            controller: _addressCtrl,
-                            label: 'Street / Apartment',
-                            icon: Icons.home_outlined,
-                            maxLines: 2,
-                            validator: (v) =>
-                                (v == null || v.trim().isEmpty)
-                                    ? 'Required'
-                                    : null,
-                          ),
-                          const SizedBox(height: 14),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: _field(
-                                  controller: _cityCtrl,
-                                  label: 'City',
-                                  icon: Icons.location_city_outlined,
-                                  validator: (v) =>
-                                      (v == null || v.trim().isEmpty)
-                                          ? 'Required'
-                                          : null,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                flex: 2,
-                                child: _field(
-                                  controller: _postalCtrl,
-                                  label: 'Postal Code',
-                                  icon: Icons.markunread_mailbox_outlined,
-                                  keyboardType: TextInputType.number,
-                                  validator: (v) =>
-                                      (v == null || v.trim().isEmpty)
-                                          ? 'Required'
-                                          : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        const SizedBox(height: 32),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+const SizedBox(height: 12),
+
+_field(
+controller: _addressCtrl,
+label: 'Street / Apartment',
+icon: Icons.home_outlined,
+maxLines: 2,
+validator: (v) =>
+v == null || v.trim().isEmpty ? 'Required' : null,
+),
+
+const SizedBox(height: 14),
+
+Row(
+children: [
+Expanded(
+flex: 3,
+child: _field(
+controller: _cityCtrl,
+label: 'City',
+icon: Icons.location_city_outlined,
+validator: (v) =>
+v == null || v.trim().isEmpty ? 'Required' : null,
+),
+),
+const SizedBox(width: 12),
+Expanded(
+flex: 2,
+child: _field(
+controller: _postalCtrl,
+label: 'Postal Code',
+icon: Icons.markunread_mailbox_outlined,
+keyboardType: TextInputType.number,
+validator: (v) =>
+v == null || v.trim().isEmpty ? 'Required' : null,
+),
+),
+],
+),
+]
           CheckoutBottomBar(
             label: 'Continue to Payment',
             onPressed: _continue,
@@ -319,15 +313,14 @@ class _AddressScreenState extends State<AddressScreen> {
       keyboardType: resolvedKeyboardType,
       maxLines: maxLines,
       textInputAction:
-          maxLines > 1 ? TextInputAction.newline : TextInputAction.next,
+      maxLines > 1 ? TextInputAction.newline : TextInputAction.next,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
       ),
     );
-  }
-}
+  };
 
 // ──────────────────────────────────────────────
 // Section header
@@ -340,10 +333,8 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context)
-          .textTheme
-          .labelLarge
-          ?.copyWith(color: AppTheme.textSecondaryColor, letterSpacing: 0.6),
+      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: AppTheme.textSecondaryColor, letterSpacing: 0.6),
     );
   }
 }
@@ -375,8 +366,7 @@ class _SavedAddressTile extends StatelessWidget {
               ? AppTheme.primaryColor.withValues(alpha: 0.06)
               : Colors.white,
           border: Border.all(
-            color:
-                selected ? AppTheme.primaryColor : Colors.grey.shade300,
+            color: selected ? AppTheme.primaryColor : Colors.grey.shade300,
             width: selected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -385,11 +375,9 @@ class _SavedAddressTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
-              selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_off,
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
               color:
-                  selected ? AppTheme.primaryColor : Colors.grey.shade400,
+              selected ? AppTheme.primaryColor : Colors.grey.shade400,
               size: 20,
             ),
             const SizedBox(width: 12),

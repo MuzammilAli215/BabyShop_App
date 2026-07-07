@@ -50,107 +50,111 @@ class OrderTrackingScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // ── Tracking timeline ──
-                if (!isCancelled) ...[
-                  _SectionHeader('Tracking'),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 20),
-                      child: _Timeline(
-                        steps: _timeline,
-                        current: order.status,
-                      ),
+                if (!isCancelled) ...[]
+                _SectionHeader('Tracking'),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
+                    child: _Timeline(
+                      steps: _timeline,
+                      current: order.status,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
+                ),
+                const SizedBox(height: 16),
+              ],
 
-                // ── Order items ──
-                _SectionHeader('Items (${order.items.length})'),
-                Card(
-                  child: Column(
-                    children: [
-                      ...order.items.asMap().entries.map((entry) {
-                        final isLast = entry.key == order.items.length - 1;
-                        return Column(
-                          children: [
-                            _ItemRow(item: entry.value),
-                            if (!isLast)
-                              const Divider(height: 1, indent: 16, endIndent: 16),
-                          ],
-                        );
-                      }),
-                      const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        child: Row(
-                          children: [
-                            const Text('Total Paid',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            const Spacer(),
-                            Text(
-                              '\$${order.totalPrice.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.successColor,
-                              ),
+              // ── Order items ──
+              _SectionHeader('Items (${order.items.length})'),
+              Card(
+                child: Column(
+                  children: [
+                    ...order.items.asMap().entries.map((entry) {
+                      final isLast = entry.key == order.items.length - 1;
+                      return Column(
+                        children: [
+                          _ItemRow(item: entry.value),
+                          if (!isLast)
+                            const Divider(
+                                height: 1,
+                                indent: 16,
+                                endIndent: 16),
+                        ],
+                      );
+                    }),
+                    const Divider(height: 1),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          const Text('Total Paid',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold)),
+                          const Spacer(),
+                          Text(
+                            '\$${order.totalPrice.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.successColor,
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // ── Delivery info ──
+              _SectionHeader('Delivery Address'),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.location_on_outlined,
+                          color: AppTheme.primaryColor),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(order.address.fullName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            Text(order.address.phone),
+                            Text(order.address.addressLine),
+                            Text(
+                                '${order.address.city} ${order.address.postalCode}'),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 16),
 
-                // ── Delivery info ──
-                _SectionHeader('Delivery Address'),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.location_on_outlined,
-                            color: AppTheme.primaryColor),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(order.address.fullName,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                              Text(order.address.phone),
-                              Text(order.address.addressLine),
-                              Text(
-                                  '${order.address.city} ${order.address.postalCode}'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+              // ── Payment ──
+              _SectionHeader('Payment'),
+              Card(
+                child: ListTile(
+                  leading: Icon(
+                    order.paymentMethod == 'Cash on Delivery'
+                        ? Icons.money
+                        : Icons.credit_card,
+                    color: AppTheme.primaryColor,
                   ),
+                  title: Text(order.paymentMethod),
+                  subtitle: const Text('Payment method'),
                 ),
-                const SizedBox(height: 16),
-
-                // ── Payment ──
-                _SectionHeader('Payment'),
-                Card(
-                  child: ListTile(
-                    leading: Icon(
-                      order.paymentMethod == 'Cash on Delivery'
-                          ? Icons.money
-                          : Icons.credit_card,
-                      color: AppTheme.primaryColor,
-                    ),
-                    title: Text(order.paymentMethod),
-                    subtitle: const Text('Payment method'),
-                  ),
-                ),
-                const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 24),
               ],
             ),
           );
@@ -276,9 +280,9 @@ class _TimelineRow extends StatelessWidget {
                   child: isDone
                       ? const Icon(Icons.check, size: 14, color: Colors.white)
                       : isActive
-                          ? const Icon(Icons.circle,
-                              size: 10, color: Colors.white)
-                          : null,
+                      ? const Icon(Icons.circle,
+                      size: 10, color: Colors.white)
+                      : null,
                 ),
                 if (!isLast)
                   Expanded(
@@ -299,13 +303,12 @@ class _TimelineRow extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight:
-                    isActive ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                 color: isActive
                     ? AppTheme.primaryColor
                     : isDone
-                        ? AppTheme.textPrimaryColor
-                        : Colors.grey.shade400,
+                    ? AppTheme.textPrimaryColor
+                    : Colors.grey.shade400,
               ),
             ),
           ),
@@ -336,17 +339,17 @@ class _ItemRow extends StatelessWidget {
               height: 56,
               child: item.image.isEmpty
                   ? Container(
-                      color: Colors.grey.shade100,
-                      child: Icon(Icons.image, color: Colors.grey.shade400))
+                  color: Colors.grey.shade100,
+                  child: Icon(Icons.image, color: Colors.grey.shade400))
                   : CachedNetworkImage(
-                      imageUrl: item.image,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) =>
-                          Container(color: Colors.grey.shade100),
-                      errorWidget: (_, __, ___) => Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey.shade400),
-                    ),
+                imageUrl: item.image,
+                fit: BoxFit.cover,
+                placeholder: (_, __) =>
+                    Container(color: Colors.grey.shade100),
+                errorWidget: (_, __, ___) => Icon(
+                    Icons.image_not_supported,
+                    color: Colors.grey.shade400),
+              ),
             ),
           ),
           const SizedBox(width: 12),
