@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AdminDashboardStats {
   final int totalUsers;
   final int totalOrders;
@@ -22,13 +24,22 @@ class AdminDashboardStats {
       totalUsers: json['totalUsers'] ?? 0,
       totalOrders: json['totalOrders'] ?? 0,
       totalProducts: json['totalProducts'] ?? 0,
-      revenue: (json['revenue'] ?? 0).toDouble(),
+      revenue: _toDouble(json['revenue']),
       pendingOrders: json['pendingOrders'] ?? 0,
       activeProducts: json['activeProducts'] ?? 0,
-      lastUpdated: json['lastUpdated'] != null
-          ? DateTime.parse(json['lastUpdated'])
-          : DateTime.now(),
+      lastUpdated: _toDateTime(json['lastUpdated']),
     );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static DateTime _toDateTime(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    return DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
   }
 
   Map<String, dynamic> toJson() {

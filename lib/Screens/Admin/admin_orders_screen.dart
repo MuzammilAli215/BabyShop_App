@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../Controllers/admin_controller.dart';
 import '../../Models/admin_order_model.dart';
 
+
 class AdminOrdersScreen extends StatefulWidget {
   const AdminOrdersScreen({Key? key}) : super(key: key);
 
@@ -69,7 +70,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
           return Column(
             children: [
-              // Filter Chips – generated from enum so adding new statuses never breaks this
+              // Filter Chips
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: SingleChildScrollView(
@@ -77,29 +78,64 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                   child: Row(
                     children: [
                       FilterChip(
-                        label: const Text('All'),
-                        selected: _selectedFilter == null,
-                        onSelected: (_) => setState(() => _selectedFilter = null),
+                        label: const Text('Confirmed'),
+                        selected: _selectedFilter == OrderStatus.confirmed,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.confirmed;
+                          });
+                        },
                       ),
-                      ...OrderStatus.values.map((status) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: FilterChip(
-                            label: Text(_statusLabel(status)),
-                            selected: _selectedFilter == status,
-                            selectedColor:
-                                _getStatusColor(status).withValues(alpha: 0.2),
-                            checkmarkColor: _getStatusColor(status),
-                            labelStyle: _selectedFilter == status
-                                ? TextStyle(
-                                    color: _getStatusColor(status),
-                                    fontWeight: FontWeight.bold)
-                                : null,
-                            onSelected: (_) =>
-                                setState(() => _selectedFilter = status),
-                          ),
-                        );
-                      }),
+
+                      FilterChip(
+                        label: const Text('Packed'),
+                        selected: _selectedFilter == OrderStatus.packed,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.packed;
+                          });
+                        },
+                      ),
+
+                      FilterChip(
+                        label: const Text('Shipped'),
+                        selected: _selectedFilter == OrderStatus.shipped,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.shipped;
+                          });
+                        },
+                      ),
+
+                      FilterChip(
+                        label: const Text('Out for Delivery'),
+                        selected: _selectedFilter == OrderStatus.outForDelivery,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.outForDelivery;
+                          });
+                        },
+                      ),
+
+                      FilterChip(
+                        label: const Text('Delivered'),
+                        selected: _selectedFilter == OrderStatus.delivered,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.delivered;
+                          });
+                        },
+                      ),
+
+                      FilterChip(
+                        label: const Text('Cancelled'),
+                        selected: _selectedFilter == OrderStatus.cancelled,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = OrderStatus.cancelled;
+                          });
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -497,25 +533,51 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   Color _getStatusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending:        return Colors.orange;
-      case OrderStatus.confirmed:      return Colors.blue.shade300;
-      case OrderStatus.packed:         return Colors.indigo;
-      case OrderStatus.shipped:        return Colors.purple;
-      case OrderStatus.outForDelivery: return Colors.deepOrange;
-      case OrderStatus.delivered:      return Colors.green;
-      case OrderStatus.cancelled:      return Colors.red;
+      case OrderStatus.pending:
+        return Colors.orange;
+
+      case OrderStatus.confirmed:
+        return Colors.blue;
+
+      case OrderStatus.packed:
+        return Colors.indigo;
+
+      case OrderStatus.shipped:
+        return Colors.purple;
+
+      case OrderStatus.outForDelivery:
+        return Colors.deepOrange;
+
+      case OrderStatus.delivered:
+        return Colors.green;
+
+      case OrderStatus.cancelled:
+        return Colors.red;
     }
   }
 
   String _statusLabel(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending:        return 'Pending';
-      case OrderStatus.confirmed:      return 'Confirmed';
-      case OrderStatus.packed:         return 'Packed';
-      case OrderStatus.shipped:        return 'Shipped';
-      case OrderStatus.outForDelivery: return 'Out for Delivery';
-      case OrderStatus.delivered:      return 'Delivered';
-      case OrderStatus.cancelled:      return 'Cancelled';
+      case OrderStatus.pending:
+        return "Pending";
+
+      case OrderStatus.confirmed:
+        return "Confirmed";
+
+      case OrderStatus.packed:
+        return "Packed";
+
+      case OrderStatus.shipped:
+        return "Shipped";
+
+      case OrderStatus.outForDelivery:
+        return "Out for Delivery";
+
+      case OrderStatus.delivered:
+        return "Delivered";
+
+      case OrderStatus.cancelled:
+        return "Cancelled";
     }
   }
 

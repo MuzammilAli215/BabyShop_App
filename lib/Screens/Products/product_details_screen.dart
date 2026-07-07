@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../Controllers/cart_controller.dart';
 import '../../Models/product_model.dart';
 import '../../Utils/app_theme.dart';
+import 'reviews_screen.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final ProductModel product;
@@ -91,7 +92,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         product.avgRating.toStringAsFixed(1),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Text(' (${product.totalReviews} reviews)'),
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ReviewsScreen(product: product),
+                          ),
+                        ),
+                        child: Text(
+                          ' (${product.totalReviews} reviews)',
+                          style: const TextStyle(
+                            color: AppTheme.primaryColor,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
                       const Spacer(),
                       Text(
                         '\$${product.price.toStringAsFixed(2)}',
@@ -215,7 +230,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             const SizedBox(height: 6),
             Text(
               'You have $currentQty of this item in your cart.\n'
-              'Update to $_quantity?',
+                  'Update to $_quantity?',
               textAlign: TextAlign.center,
               style: Theme.of(ctx).textTheme.bodyMedium,
             ),

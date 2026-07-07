@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AdminProductModel {
   final String productId;
   final String name;
@@ -36,22 +38,34 @@ class AdminProductModel {
       productId: productId,
       name: json['name'] ?? 'N/A',
       description: json['description'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
+      price: _toDouble(json['price']),
       brand: json['brand'] ?? 'N/A',
       category: json['category'] ?? 'N/A',
       image: json['image'] ?? '',
-      stock: json['stock'] ?? 0,
-      rating: (json['rating'] ?? 0).toDouble(),
+      stock: _toInt(json['stock']),
+      rating: _toDouble(json['rating']),
       isActive: json['isActive'] ?? true,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : DateTime.now(),
-      totalReviews: json['totalReviews'] ?? 0,
-      avgRating: (json['avgRating'] ?? 0).toDouble(),
+      createdAt: _toDateTime(json['createdAt']),
+      updatedAt: _toDateTime(json['updatedAt']),
+      totalReviews: _toInt(json['totalReviews']),
+      avgRating: _toDouble(json['avgRating']),
     );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static DateTime _toDateTime(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    return DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
   }
 
   Map<String, dynamic> toJson() {

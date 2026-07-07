@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AdminOrderItem {
   final String productId;
   final String productName;
@@ -17,10 +19,20 @@ class AdminOrderItem {
     return AdminOrderItem(
       productId: json['productId'] ?? '',
       productName: json['productName'] ?? 'N/A',
-      quantity: json['quantity'] ?? 0,
-      price: (json['price'] ?? 0).toDouble(),
-      subtotal: (json['subtotal'] ?? 0).toDouble(),
+      quantity: _toInt(json['quantity']),
+      price: _toDouble(json['price']),
+      subtotal: _toDouble(json['subtotal']),
     );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -84,18 +96,19 @@ class AdminOrderModel {
           ?.map((item) => AdminOrderItem.fromJson(Map<String, dynamic>.from(item as Map)))
           .toList() ??
           [],
-      totalPrice: (json['totalPrice'] ?? 0).toDouble(),
+      totalPrice: _toDouble(json['totalPrice']),
       paymentMethod: json['paymentMethod'] ?? 'N/A',
       status: _parseOrderStatus(json['status']),
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
-      deliveredAt: json['deliveredAt'] != null
-          ? DateTime.parse(json['deliveredAt'])
-          : null,
+      createdAt: _toDateTime(json['createdAt']) ?? DateTime.now(),
+      deliveredAt: _toDateTime(json['deliveredAt']),
       shippingAddress: json['shippingAddress'],
       trackingNumber: json['trackingNumber'],
     );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -114,6 +127,13 @@ class AdminOrderModel {
     };
   }
 
+  static DateTime? _toDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    return DateTime.tryParse(value.toString());
+  }
+
   static OrderStatus _parseOrderStatus(String? statusStr) {
     return OrderStatus.values.firstWhere(
       (s) => s.name == statusStr,
@@ -125,13 +145,26 @@ class AdminOrderModel {
 
   String get statusDisplayString {
     switch (status) {
-      case OrderStatus.pending:       return 'Pending';
-      case OrderStatus.confirmed:     return 'Confirmed';
-      case OrderStatus.packed:        return 'Packed';
-      case OrderStatus.shipped:       return 'Shipped';
-      case OrderStatus.outForDelivery: return 'Out for Delivery';
-      case OrderStatus.delivered:     return 'Delivered';
-      case OrderStatus.cancelled:     return 'Cancelled';
+      case OrderStatus.pending:
+        return 'Pending';
+
+      case OrderStatus.confirmed:
+        return 'Confirmed';
+
+      case OrderStatus.packed:
+        return 'Packed';
+
+      case OrderStatus.shipped:
+        return 'Shipped';
+
+      case OrderStatus.outForDelivery:
+        return 'Out for Delivery';
+
+      case OrderStatus.delivered:
+        return 'Delivered';
+
+      case OrderStatus.cancelled:
+        return 'Cancelled';
     }
   }
 }
