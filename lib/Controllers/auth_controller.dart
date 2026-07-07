@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -88,9 +88,10 @@ class AuthController with ChangeNotifier {
     } catch (_) {}
   }
 
-  /// Uploads [imageFile] to Firebase Storage and stores its URL on the user
-  /// document so it can be shown as the profile picture.
-  Future<bool> updateProfilePicture(File imageFile) async {
+  /// Uploads [bytes] to Firebase Storage and stores its URL on the user
+  /// document so it can be shown as the profile picture. Uses putData (bytes)
+  /// rather than putFile so it works on web as well as mobile.
+  Future<bool> updateProfilePicture(Uint8List bytes) async {
     if (_user == null) return false;
     _isLoading = true;
     _error = null;
@@ -98,7 +99,7 @@ class AuthController with ChangeNotifier {
 
     try {
       final ref = _storage.ref().child('profile_pictures/${_user!.uid}.jpg');
-      await ref.putFile(imageFile);
+      await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
       final url = await ref.getDownloadURL();
 
       await _firestore.collection('users').doc(_user!.uid).update({

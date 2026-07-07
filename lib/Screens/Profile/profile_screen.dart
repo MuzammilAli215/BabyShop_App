@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -37,9 +35,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     if (picked == null || !mounted) return;
 
+    // Read the bytes so the upload works on every platform (on web the picked
+    // path is a blob URL that dart:io File cannot read).
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+
     setState(() => _uploadingPhoto = true);
     final auth = context.read<AuthController>();
-    final ok = await auth.updateProfilePicture(File(picked.path));
+    final ok = await auth.updateProfilePicture(bytes);
     if (!mounted) return;
     setState(() => _uploadingPhoto = false);
 
