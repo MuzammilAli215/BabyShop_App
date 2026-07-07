@@ -192,17 +192,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
 
                   // ── Card form (shown only if Card selected) ──
-                  if (_method == 'Card') ...[]
-                  const SizedBox(height: 16),
-                  _CardForm(
-                    formKey: _cardFormKey,
-                    cardNumberCtrl: _cardNumberCtrl,
-                    cardNameCtrl: _cardNameCtrl,
-                    expiryCtrl: _expiryCtrl,
-                    cvvCtrl: _cvvCtrl,
-                  ),
-                ],
-                const SizedBox(height: 24),
+                  if (_method == 'Card') ...[
+                    const SizedBox(height: 16),
+                    _CardForm(
+                      formKey: _cardFormKey,
+                      cardNumberCtrl: _cardNumberCtrl,
+                      cardNameCtrl: _cardNameCtrl,
+                      expiryCtrl: _expiryCtrl,
+                      cvvCtrl: _cvvCtrl,
+                    ),
+                  ],
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

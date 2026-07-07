@@ -62,6 +62,7 @@ class AdminOrderModel {
   final String userId;
   final String userName;
   final String userEmail;
+  final String userPhone;
   final List<AdminOrderItem> items;
   final double totalPrice;
   final String paymentMethod;
@@ -76,6 +77,7 @@ class AdminOrderModel {
     required this.userId,
     required this.userName,
     required this.userEmail,
+    this.userPhone = '',
     required this.items,
     required this.totalPrice,
     required this.paymentMethod,
@@ -92,6 +94,7 @@ class AdminOrderModel {
       userId: json['userId'] ?? '',
       userName: json['userName'] ?? 'N/A',
       userEmail: json['userEmail'] ?? 'N/A',
+      userPhone: json['userPhone'] ?? '',
       items: (json['items'] as List?)
           ?.map((item) => AdminOrderItem.fromJson(Map<String, dynamic>.from(item as Map)))
           .toList() ??
@@ -116,6 +119,7 @@ class AdminOrderModel {
       'userId': userId,
       'userName': userName,
       'userEmail': userEmail,
+      'userPhone': userPhone,
       'items': items.map((item) => item.toJson()).toList(),
       'totalPrice': totalPrice,
       'paymentMethod': paymentMethod,

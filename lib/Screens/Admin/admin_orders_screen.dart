@@ -370,6 +370,16 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
             children: [
               _buildDetailRow('Customer:', order.userName),
               _buildDetailRow('Email:', order.userEmail),
+              _buildDetailRow(
+                'Phone:',
+                order.userPhone.isNotEmpty ? order.userPhone : 'N/A',
+              ),
+              _buildDetailRow(
+                'Address:',
+                (order.shippingAddress?.isNotEmpty ?? false)
+                    ? order.shippingAddress!
+                    : 'N/A',
+              ),
               _buildDetailRow('Date:', _formatDate(order.createdAt)),
               _buildDetailRow('Status:', order.statusDisplayString),
               _buildDetailRow('Payment Method:', order.paymentMethod),

@@ -63,10 +63,14 @@ class OrderItem {
   Map<String, dynamic> toJson() => {
         'productId': productId,
         'name': name,
+        // Also stored as productName/subtotal so the admin order views (which
+        // read those keys) can display item names and line totals.
+        'productName': name,
         'brand': brand,
         'image': image,
         'price': price,
         'quantity': quantity,
+        'subtotal': subtotal,
       };
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(

@@ -179,26 +179,22 @@ class _AddressScreenState extends State<AddressScreen> {
                             },
                           ),
                           const SizedBox(height: 20),
-// ── Saved addresses ──────────────────────
-if (auth.addresses.isNotEmpty) ...[
-_SectionHeader('Saved Addresses'),
-const SizedBox(height: 10),
-
-...auth.addresses.asMap().entries.map((entry) {
-final idx = entry.key;
-final addr = entry.value;
-final selected = _selectedSavedIndex == idx;
-
-return _SavedAddressTile(
-address: addr,
-selected: selected,
-onTap: () => _applySavedAddress(addr, idx),
-);
-}),
-
-const SizedBox(height: 12),
-]
-
+                          // ── Saved addresses ──
+                          if (auth.addresses.isNotEmpty) ...[
+                            _SectionHeader('Saved Addresses'),
+                            const SizedBox(height: 10),
+                            ...auth.addresses.asMap().entries.map((entry) {
+                              final idx = entry.key;
+                              final addr = entry.value;
+                              final selected = _selectedSavedIndex == idx;
+                              return _SavedAddressTile(
+                                address: addr,
+                                selected: selected,
+                                onTap: () => _applySavedAddress(addr, idx),
+                              );
+                            }),
+                            const SizedBox(height: 12),
+                          ],
                           // "Add new address" row
                           InkWell(
                             borderRadius: BorderRadius.circular(12),
@@ -237,57 +233,65 @@ const SizedBox(height: 12),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          // ── Address fields (show when needed) ──
+                          if (_showNewAddressForm ||
+                              _selectedSavedIndex >= 0) ...[
+                            const SizedBox(height: 20),
+                            _SectionHeader(
+                              _showNewAddressForm
+                                  ? 'New Address'
+                                  : 'Delivery Address',
+                            ),
+                            const SizedBox(height: 12),
+                            _field(
+                              controller: _addressCtrl,
+                              label: 'Street / Apartment',
+                              icon: Icons.home_outlined,
+                              maxLines: 2,
+                              validator: (v) => v == null || v.trim().isEmpty
+                                  ? 'Required'
+                                  : null,
+                            ),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: _field(
+                                    controller: _cityCtrl,
+                                    label: 'City',
+                                    icon: Icons.location_city_outlined,
+                                    validator: (v) =>
+                                        v == null || v.trim().isEmpty
+                                            ? 'Required'
+                                            : null,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 2,
+                                  child: _field(
+                                    controller: _postalCtrl,
+                                    label: 'Postal Code',
+                                    icon: Icons.markunread_mailbox_outlined,
+                                    keyboardType: TextInputType.number,
+                                    validator: (v) =>
+                                        v == null || v.trim().isEmpty
+                                            ? 'Required'
+                                            : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          const SizedBox(height: 32),
                         ],
-
-                        ── Address fields (show when needed) ─────
-if (_showNewAddressForm || _selectedSavedIndex >= 0) ...[
-_SectionHeader(
-_showNewAddressForm
-? 'New Address'
-: 'Delivery Address',
-),
-
-const SizedBox(height: 12),
-
-_field(
-controller: _addressCtrl,
-label: 'Street / Apartment',
-icon: Icons.home_outlined,
-maxLines: 2,
-validator: (v) =>
-v == null || v.trim().isEmpty ? 'Required' : null,
-),
-
-const SizedBox(height: 14),
-
-Row(
-children: [
-Expanded(
-flex: 3,
-child: _field(
-controller: _cityCtrl,
-label: 'City',
-icon: Icons.location_city_outlined,
-validator: (v) =>
-v == null || v.trim().isEmpty ? 'Required' : null,
-),
-),
-const SizedBox(width: 12),
-Expanded(
-flex: 2,
-child: _field(
-controller: _postalCtrl,
-label: 'Postal Code',
-icon: Icons.markunread_mailbox_outlined,
-keyboardType: TextInputType.number,
-validator: (v) =>
-v == null || v.trim().isEmpty ? 'Required' : null,
-),
-),
-],
-),
-]
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           CheckoutBottomBar(
             label: 'Continue to Payment',
             onPressed: _continue,
@@ -320,7 +324,8 @@ v == null || v.trim().isEmpty ? 'Required' : null,
         prefixIcon: Icon(icon),
       ),
     );
-  };
+  }
+}
 
 // ──────────────────────────────────────────────
 // Section header
